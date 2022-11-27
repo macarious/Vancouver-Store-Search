@@ -1,0 +1,34 @@
+CS 5001, Fall 2022
+HUI, Macarious Kin Fung
+
+Data Dashboard Final Project
+Milestone 1 - design.txt
+
+Summary:
+My program asks user to select a rapid transit station, a retail category, and a search radius. My program then figures out all the stores which are of the specified retail category and within the specified search radius from the rapid transit station. Information of these stores will be displayed in a table starting from the nearest store.
+
+Data Sets:
+The data dashboard uses two data sets from the City of Vancouver’s Open Data Portal (https://opendata.vancouver.ca/):
+(1)	Rapid Transit Stations – a list of stations from the three rapid transit lines in Vancouver (https://opendata.vancouver.ca/explore/dataset/rapid-transit-stations/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B&epsg=26910)
+(2)	Storefronts Inventory – a list of storefronts (commercial retail spaces) and shopping malls in Vancouver (https://opendata.vancouver.ca/explore/dataset/storefronts-inventory/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B&epsg=26910)
+There are two types of geographical coordinates available from Open Data Portal: EPSG: 26910 and WGS84 (EPSG 4326). I am downloading the file with the EPSG: 26910 coordinates because I am more familiar with this format from my previous work. This format is a local projection measured in metres, and I am only comparing coordinates in a contained local region. Therefore, as oppose to using longitude and latitude from the WGS84 format, the program will not need to use complex equations to account for the elliptical earth’s surface.
+
+Processing and Storage of Data:
+The ‘requests’ module is used to download the data from the URL and convert the dataset into a text of strings, separated by new-line characters. The text is parsed and split into individual rows; each row represents a single transit station or a storefront. Each row is then split into individual data (such as station name, store ID, local area) and cleaned. Unwanted characters are removed and only characters which are useful are extracted. The data from each row is then stored inside individual instances of the class ‘TransitStation’ or ‘Storefront’ as attributes.
+
+Analysis:
+The distances from a ‘TransitStation’ instance to other storefront are calculated using a method from the ‘TransitStation’ class. The distances are used to determine which are the nearest ‘Storefront’ relative to a specific ‘TransitStation’. The ‘NearbyStore’ class interacts with the ‘TransitStation’ and ‘Storefront’ classes and stores the results of the analysis including the distance calculated as an attribute of the ‘NearbyStore’ class. For a given transit station, the results are represented in a list of instances of ‘NearbyStore’. 
+
+Visualization (Current):
+The list of ‘NearbyStore’ is converted into a ‘DataFrame’ object by using the ‘pandas’ module. A table of nearby stores (relative to a selected transit station) will be displayed in the terminal. The table will display the information from nearest to farthest. The number of stores to display can be controlled by the user.
+
+Visualization (Future):
+Along with a list of information about the nearby stores. The number of stores from each retail category (within the search radius) can be plotted in a bar graph for visualization.
+
+Interaction:
+There are a couple of input required from the user which impacts the results:
+(1)	Transit Station – the distance to each store will depend on the selected transit station
+(2)	Retail Category – stores which does not belong to the selected category will be filtered out
+(3)	Search Radius – stores beyond the search radius will be filtered out
+(4)	Max Store to Display – this affects how more stores will be displayed in the table
+The user can also select ‘All’ as a Retail Category. The user can also select ‘0’ to use an infinite search radius (explained to the user when the program prompts for an input in the terminal).
