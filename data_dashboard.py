@@ -37,23 +37,21 @@ json - extracts data from a json-encoded string (coordinates data)
 # Modules and Functions
 from dataset_parameters import TRANSIT_STATIONS_DATASET_DESCRIPTOR
 from dataset_parameters import STOREFRONTS_DATASET_DESCRIPTOR
-from nearby_stores_finder import find_nearby_stores
 from storefront_factory import create_storefront_list_from_url
 from transit_station_factory import create_transit_station_list_from_url
 
-
 # Classes
 from model.user_input import UserInput
-from user_interface.terminal_user_interface import TerminalUserInterface
+from user_interface.graphical_user_interface import GraphicalUserInterface
 
 
 # Main Function
 def main():
 
-    # try:
+    try:
         # Instantiate user input and interface
         user_input = UserInput()
-        user_interface = TerminalUserInterface(user_input)
+        user_interface = GraphicalUserInterface(user_input)
 
         # Display loading message
         user_interface.display_loading_message()
@@ -66,15 +64,8 @@ def main():
         user_interface.populate_menus(list_transit_stations, list_storefronts)
         user_interface.start_user_interaction()
 
-        # Analysis
-        list_nearby_stores = find_nearby_stores(user_interface.user_input, list_storefronts)
-
-        # Output
-        user_interface.display_input_summary()
-        user_interface.display_nearby_stores(list_nearby_stores)
-
-    # except Exception as exception: # Reraises exceptions from called functions/methods
-    #     print(exception)
+    except Exception as exception: # Reraises exceptions from called functions/methods
+        print(exception)
         
 if __name__ == "__main__":
     main()

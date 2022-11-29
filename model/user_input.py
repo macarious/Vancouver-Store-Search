@@ -95,8 +95,8 @@ class UserInput:
             search_radius_text = 'infinite'
         
         return (
-            f"{self.name}\n:"
-            f"Transit Station: {self.transit_station.station_name}\n" +
+            f"{self.name}\n"
+            f"Transit Station: {self.transit_station.station_name}\n"
             f"Store Category: {self.store_category}\n"
             f"Search Radius: {search_radius_text}\n"
             f"Max Display: {self.max_display_count}\n"

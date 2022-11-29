@@ -38,24 +38,25 @@ class TerminalUserInterface:
         terminal.
 
         The following methods are available:
-        __init__ (Constructor))
+        __init__ (Constructor)
         __str__
         __eq__
-        display_header
-        display_instructions
-        display_list
+        display_input_summary
         display_loading_message
-        display_menu_store_categories
-        display_menu_transit_stations
         display_nearby_stores
-        generate_list_station_names
-        generate_list_store_categories
         poplulate_interface_menu
-        prompt_max_display_count
-        prompt_search_radius
-        prompt_store_category
-        prompt_user_integer_input
-        start_user_interface  
+        start_user_interface 
+        __display_header
+        __display_instructions
+        __display_list
+        __display_menu_store_categories
+        __display_menu_transit_stations
+        __generate_list_station_names
+        __generate_list_store_categories
+        __prompt_max_display_count
+        __prompt_search_radius
+        __prompt_store_category
+        __prompt_user_integer_input
     '''
     def __init__(self, user_input):
         '''
@@ -73,10 +74,10 @@ class TerminalUserInterface:
         '''
         self.name = 'Terminal User Interface'
         self.user_input = user_input
-        self.list_transit_stations = [] # Placeholder empty list, for menu display
-        self.list_storefronts = [] # Placeholder empty list, for menu display
-        self.list_station_names = [] # Placeholder empty list, for menu display
-        self.list_store_categories = [] # Placeholder empty list, for menu display
+        self.__list_transit_stations = [] # Placeholder empty list, for menu display
+        self.__list_storefronts = [] # Placeholder empty list, for menu display
+        self.__list_station_names = [] # Placeholder empty list, for menu display
+        self.__list_store_categories = [] # Placeholder empty list, for menu display
 
         
     def __str__(self):
@@ -119,28 +120,6 @@ class TerminalUserInterface:
             raise TypeError("TypeError: The attribute 'name' must be a string")
         
         return (self.name == other.name)
-    
-
-    def display_header(self, header_text):
-        '''
-        Method Name: display_header
-            Display a header in the terminal
-        
-        Parameters:
-            header_text -- str, the text to be displayed in the header
-        
-        Raises:
-            TypeError -- raises if the parameter 'header_text' is not a string
-        
-        Returns:
-            None
-        '''
-        if type(header_text) is not str:
-            raise TypeError("TypeError: The parameter 'header_text' must be a string")
-        
-        print(HEADER_LINE_SYMBOL * len(header_text))
-        print(header_text)
-        print(HEADER_LINE_SYMBOL * len(header_text))
 
 
     def display_input_summary(self):
@@ -158,59 +137,6 @@ class TerminalUserInterface:
             None
         '''
         print(self.user_input)
-
-
-    def display_instructions(self):
-        '''
-        Method Name: display_header
-            Display a list of instructions in the terminal
-        
-        Parameters:
-            Nothing
-        
-        Raises:
-            Nothing
-        
-        Returns:
-            None
-        '''
-        self.display_header("Instructions")
-        print("This program searches for nearby stores given a Transit Station in the City of Vancouver:\n"
-            "1. Select a Transit Station.\n"
-            "2. Select a store category to filter.\n"
-            "3. Specify a search radius in metres.\n"
-            "4. Specify the maximum number of stores to display.\n"
-            )
-        
-
-    def display_list(self, list_text):
-        '''
-        Method Name: display_list
-            Display a list in the termianl
-        Parameters:
-            list_text -- list of str, list of text to display
-        
-        Raises:
-            TypeError -- raises if parameter 'list_text' is not a list
-            ValueError -- raises if parameter 'list_text' is an empty list
-        
-        Returns:
-            None
-        '''
-        if type(list_text) is not list:
-            raise TypeError("TypeError: The parameter 'list_text' must be a list")
-        if len(list_text) == 0:
-            raise ValueError("ValueError: The parameter 'list_text' is empty")
-
-        # Ensure menu width is greater than all text entries
-        max_text_length = MENU_MIN_LENGTH - MENU_EXTRA_LENGTH
-        for entry in list_text:
-            if len(entry) > max_text_length:
-                max_text_length = len(entry)
-
-        for i in range(len(list_text)):
-            print(f"{(list_text[i] + '').ljust(max_text_length + MENU_EXTRA_LENGTH, '-')} {i + MENU_START_INDEX}")
-        print()
 
 
     def display_loading_message(self):
@@ -252,101 +178,6 @@ class TerminalUserInterface:
             raise TypeError("TypeError The value of key 'max display count' must be an integer")
         
         dataset_table_printer.print_nearby_store(list_nearby_stores, self.user_input.max_display_count)
-                
- 
-    def display_menu_store_categories(self):
-        '''
-        Method Name: display_menu_store_categories
-            Display a menu of store categories
-        
-        Parameters:
-            Nothing
-        
-        Raises:
-            Nothing
-
-        Returns:
-            None
-        '''
-        self.display_header('List of Store Categories')
-        self.generate_list_store_categories()
-        self.display_list(self.list_store_categories)
-
-        
-    def display_menu_transit_stations(self):
-        '''
-        Method Name: display_menu_transit_stations
-            Display a menu of transit_stations
-        
-        Parameters:
-            Nothing
-        
-        Raises:
-            Nothing
-        
-        Returns:
-            None
-        '''
-        self.display_header('List of Transit Stations')
-        self.generate_list_station_names()
-        self.display_list(self.list_station_names)
-    
-
-    def generate_list_station_names(self):
-        '''
-        Method Name: generate_list_station_names
-            Generate a list of transit station names from a list of 'TransitStation' objects
-        
-        Parameters:
-            Nothing
-        
-        Raises:
-            TypeError -- raises if attribute 'list_transit_stations' is not a list
-            ValueError -- raises if attribute 'list_transit_stations' is an empty list
-        
-        Returns:
-            None
-        '''
-        if type(self.list_transit_stations) is not list:
-            raise TypeError("TypeError: The attribute 'list_transit_stations' must be a list")
-        
-        if len(self.list_transit_stations) == 0:
-            raise ValueError("ValueError: The attribute 'list_transit_stations' cannot be empty")
-
-        list_station_name = []
-        for station in self.list_transit_stations:
-            list_station_name.append(station.station_name)
-        
-        self.list_station_names = list_station_name
-    
-
-    def generate_list_store_categories(self):
-        '''
-        Method Name: generate_list_store_categories
-            Generate a list of store categories form a list of 'Storefront' objects
-        
-        Parameters:
-            Nothing
-        
-        Raises:
-            TypeError -- raises if attribute 'list_storefront' is not a list
-            ValueError -- raises if attribute 'list_storefront' is an empty list
-        
-        Returns:
-        '''
-        if type(self.list_storefronts) is not list:
-            raise TypeError("TypeError: The attribute 'list_storefronts' must be a list")
-        
-        if len(self.list_storefronts) == 0:
-            raise ValueError("ValueError: The attribute 'list_storefronts' cannot be empty")
-
-        list_store_categories = []
-        for store in self.list_storefronts:
-            if (store.retail_category not in list_store_categories) and (store.retail_category not in UNUSED_STORE_CATEGORY):
-                list_store_categories.append(store.retail_category)
-
-        list_store_categories.append(ADDITIONAL_STORE_CATEGORY)
-        self.list_store_categories = list_store_categories
 
 
     def populate_menus(self, list_transit_stations, list_storefronts):
@@ -379,13 +210,213 @@ class TerminalUserInterface:
         if len(list_storefronts) == 0:
             raise ValueError("ValueError: The parameter 'list_storefronts' cannot be empty")
         
-        self.list_transit_stations = list_transit_stations
-        self.list_storefronts = list_storefronts
+        self.__list_transit_stations = list_transit_stations
+        self.__list_storefronts = list_storefronts
+                
+
+    def start_user_interaction(self):
+        '''
+        Method Name: start_user_interaction
+            Commences interaction between terminal and user. Displays menus and prompts
+            users for input. The inputs in the terminal are stored as attributes in the
+            'TerminalUserInterface' object.
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            Nothing
+        '''
+        self.__display_instructions()
+        self.__display_menu_transit_stations()
+        # Menu shows input numbered from 1 to n (instead of 0 to n-1) so the
+        # index is 1 less than the user input
+        self.user_input.transit_station = self.__list_transit_stations[self.prompt_transit_station() - 1]
+        self.__display_menu_store_categories()
+        # Menu shows input numbered from 1 to n (instead of 0 to n-1) so the
+        # index is 1 less than the user input
+        self.user_input.store_category = self.__list_store_categories[self.__prompt_store_category() - 1]
+        self.user_input.search_radius = self.__prompt_search_radius()
+        self.user_input.max_display_count = self.__prompt_max_display_count()
+        print()
+    
+
+    def __display_header(self, header_text):
+        '''
+        Method Name: __display_header
+            Display a header in the terminal
+        
+        Parameters:
+            header_text -- str, the text to be displayed in the header
+        
+        Raises:
+            TypeError -- raises if the parameter 'header_text' is not a string
+        
+        Returns:
+            None
+        '''
+        if type(header_text) is not str:
+            raise TypeError("TypeError: The parameter 'header_text' must be a string")
+        
+        print(HEADER_LINE_SYMBOL * len(header_text))
+        print(header_text)
+        print(HEADER_LINE_SYMBOL * len(header_text))
+
+
+    def __display_instructions(self):
+        '''
+        Method Name: __display_header
+            Display a list of instructions in the terminal
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+        
+        Returns:
+            None
+        '''
+        self.__display_header("Instructions")
+        print("This program searches for nearby stores given a Transit Station in the City of Vancouver:\n"
+            "1. Select a Transit Station.\n"
+            "2. Select a store category to filter.\n"
+            "3. Specify a search radius in metres.\n"
+            "4. Specify the maximum number of stores to display.\n"
+            )
+        
+
+    def __display_list(self, list_text):
+        '''
+        Method Name: __display_list
+            Display a list in the termianl
+        Parameters:
+            list_text -- list of str, list of text to display
+        
+        Raises:
+            TypeError -- raises if parameter 'list_text' is not a list
+            ValueError -- raises if parameter 'list_text' is an empty list
+        
+        Returns:
+            None
+        '''
+        if type(list_text) is not list:
+            raise TypeError("TypeError: The parameter 'list_text' must be a list")
+        if len(list_text) == 0:
+            raise ValueError("ValueError: The parameter 'list_text' is empty")
+
+        # Ensure menu width is greater than all text entries
+        max_text_length = MENU_MIN_LENGTH - MENU_EXTRA_LENGTH
+        for entry in list_text:
+            if len(entry) > max_text_length:
+                max_text_length = len(entry)
+
+        for i in range(len(list_text)):
+            print(f"{(list_text[i] + '').ljust(max_text_length + MENU_EXTRA_LENGTH, '-')} {i + MENU_START_INDEX}")
+        print()
+                
+ 
+    def __display_menu_store_categories(self):
+        '''
+        Method Name: __display_menu_store_categories
+            Display a menu of store categories
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
+        self.__display_header('List of Store Categories')
+        self.__generate_list_store_categories()
+        self.__display_list(self.__list_store_categories)
+
+        
+    def __display_menu_transit_stations(self):
+        '''
+        Method Name: __display_menu_transit_stations
+            Display a menu of transit_stations
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+        
+        Returns:
+            None
+        '''
+        self.__display_header('List of Transit Stations')
+        self.__generate_list_station_names()
+        self.__display_list(self.__list_station_names)
+    
+
+    def __generate_list_station_names(self):
+        '''
+        Method Name: __generate_list_station_names
+            Generate a list of transit station names from a list of 'TransitStation' objects
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            TypeError -- raises if attribute 'list_transit_stations' is not a list
+            ValueError -- raises if attribute 'list_transit_stations' is an empty list
+        
+        Returns:
+            None
+        '''
+        if type(self.__list_transit_stations) is not list:
+            raise TypeError("TypeError: The attribute 'list_transit_stations' must be a list")
+        
+        if len(self.__list_transit_stations) == 0:
+            raise ValueError("ValueError: The attribute 'list_transit_stations' cannot be empty")
+
+        list_station_name = []
+        for station in self.__list_transit_stations:
+            list_station_name.append(station.station_name)
+        
+        self.__list_station_names = list_station_name
+    
+
+    def __generate_list_store_categories(self):
+        '''
+        Method Name: __generate_list_store_categories
+            Generate a list of store categories form a list of 'Storefront' objects
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            TypeError -- raises if attribute 'list_storefront' is not a list
+            ValueError -- raises if attribute 'list_storefront' is an empty list
+        
+        Returns:
+        '''
+        if type(self.__list_storefronts) is not list:
+            raise TypeError("TypeError: The attribute 'list_storefronts' must be a list")
+        
+        if len(self.__list_storefronts) == 0:
+            raise ValueError("ValueError: The attribute 'list_storefronts' cannot be empty")
+
+        list_store_categories = []
+        for store in self.__list_storefronts:
+            if (store.retail_category not in list_store_categories) and (store.retail_category not in UNUSED_STORE_CATEGORY):
+                list_store_categories.append(store.retail_category)
+
+        list_store_categories.append(ADDITIONAL_STORE_CATEGORY)
+        self.__list_store_categories = list_store_categories
  
         
-    def prompt_max_display_count(self):
+    def __prompt_max_display_count(self):
         '''
-        Method Name: prompt_max_display_count
+        Method Name: __prompt_max_display_count
            Prompt user for a maximum number of entries to display in the results
         
         Parameters:
@@ -397,12 +428,12 @@ class TerminalUserInterface:
         Returns:
             int, user input
         '''
-        return self.prompt_user_integer_input(f"the maximum number of stores to display (max: {MAX_DISPLAY_COUNT})", MIN_DISPLAY_COUNT, MAX_DISPLAY_COUNT)
+        return self.__prompt_user_integer_input(f"the maximum number of stores to display (max: {MAX_DISPLAY_COUNT})", MIN_DISPLAY_COUNT, MAX_DISPLAY_COUNT)
 
 
-    def prompt_search_radius(self):
+    def __prompt_search_radius(self):
         '''
-        Method Name: prompt_max_display_count
+        Method Name: __prompt_max_display_count
            Prompt user for a maximum number of entries to display in the results
         
         Parameters:
@@ -432,9 +463,9 @@ class TerminalUserInterface:
         return user_input
                     
 
-    def prompt_store_category(self):
+    def __prompt_store_category(self):
         '''
-        Method Name: prompt_store_category
+        Method Name: __prompt_store_category
            Prompt for an integer corresponding to a store category
         
         Parameters:
@@ -447,14 +478,14 @@ class TerminalUserInterface:
         Returns:
             int, user input
         '''
-        if type(self.list_store_categories) is not list:
+        if type(self.__list_store_categories) is not list:
             raise TypeError("TypeError: The attribute 'list_store_categories' must be a list")
         
-        if len(self.list_store_categories) == 0:
+        if len(self.__list_store_categories) == 0:
             raise ValueError("ValueError: The attribute 'list_store_categories' cannot be empty")
 
         object_prompt = 'an integer corresponding to the store category'
-        return self.prompt_user_integer_input(object_prompt, MENU_START_INDEX, len(self.list_store_categories))
+        return self.__prompt_user_integer_input(object_prompt, MENU_START_INDEX, len(self.__list_store_categories))
 
     
     def prompt_transit_station(self):
@@ -472,20 +503,20 @@ class TerminalUserInterface:
         Returns:
             int, user input
         '''
-        if type(self.list_station_names) is not list:
+        if type(self.__list_station_names) is not list:
             raise TypeError("TypeError: The attribute 'list_station_names' must be a list")
         
-        if len(self.list_station_names) == 0:
+        if len(self.__list_station_names) == 0:
             raise ValueError("ValueError: The attribute 'list_station_names' cannot be empty")
 
         object_prompt = 'an integer corresponding to the transit station'
-        return self.prompt_user_integer_input(object_prompt, MENU_START_INDEX, len(self.list_station_names))
+        return self.__prompt_user_integer_input(object_prompt, MENU_START_INDEX, len(self.__list_station_names))
 
    
      
-    def prompt_user_integer_input(self, prompt_subject, min_input, max_input):
+    def __prompt_user_integer_input(self, prompt_subject, min_input, max_input):
         '''
-        Method Name: prompt_user_integer_input
+        Method Name: __prompt_user_integer_input
             Prompt user for an integer input within a specified minimum an maxmimum value
         
         Parameters:
@@ -526,33 +557,3 @@ class TerminalUserInterface:
                     is_valid_input = True
         
         return user_input
-                
-
-    def start_user_interaction(self):
-        '''
-        Method Name: start_user_interaction
-            Commences interaction between terminal and user. Displays menus and prompts
-            users for input. The inputs in the terminal are stored as attributes in the
-            'TerminalUserInterface' object.
-        
-        Parameters:
-            Nothing
-        
-        Raises:
-            Nothing
-
-        Returns:
-            Nothing
-        '''
-        self.display_instructions()
-        self.display_menu_transit_stations()
-        # Menu shows input numbered from 1 to n (instead of 0 to n-1) so the
-        # index is 1 less than the user input
-        self.user_input.transit_station = self.list_transit_stations[self.prompt_transit_station() - 1]
-        self.display_menu_store_categories()
-        # Menu shows input numbered from 1 to n (instead of 0 to n-1) so the
-        # index is 1 less than the user input
-        self.user_input.store_category = self.list_store_categories[self.prompt_store_category() - 1]
-        self.user_input.search_radius = self.prompt_search_radius()
-        self.user_input.max_display_count = self.prompt_max_display_count()
-        print()

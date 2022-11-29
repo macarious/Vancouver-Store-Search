@@ -225,7 +225,7 @@ def print_nearby_store(list_objects, row_count):
 
     print_title('List of Nearby Stores')
     if len(list_objects) == 0:
-        print("There are no results to display. Try adjusting your search radius or display count.")
+        print("There are no results to display. Try adjusting your search radius.")
     else:
         pandas.set_option('display.max_rows', None) # Prevents table rows from being truncated
         print(create_dataframe_nearby_store(list_objects).head(row_count), '\n')
