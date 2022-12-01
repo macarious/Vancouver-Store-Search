@@ -11,7 +11,7 @@ data_dashboard.py
 '''
 
 # Module
-import user_interface.dataset_table_printer as dataset_table_printer
+import _not_used.dataset_table_printer as dataset_table_printer
 
 
 # Constants used for menu display

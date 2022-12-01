@@ -190,12 +190,12 @@ def remove_duplicated_stores(list_nearby_stores):
     if len(list_nearby_stores) == 0:
         raise ValueError("ValueError: The parameter 'list_storefront' must not be empty")
     
-    unique_store_name = set()
+    unique_store_names = set()
     index = 0
     while index < len(list_nearby_stores):
         business_name = list_nearby_stores[index].storefront.business_name
-        if business_name not in unique_store_name:
-            unique_store_name.add(business_name)
+        if business_name not in unique_store_names:
+            unique_store_names.add(business_name)
             index += 1 # Increment index only if no entry is removed
         else:
             list_nearby_stores.pop(index)

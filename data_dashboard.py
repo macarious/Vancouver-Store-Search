@@ -48,24 +48,17 @@ from user_interface.graphical_user_interface import GraphicalUserInterface
 # Main Function
 def main():
 
-    try:
-        # Instantiate user input and interface
+    # try:
+        # Instantiate user input and user interface
+        # In this program, the GUI/dashboard acts as the console because the program is
+        # event-driven. Analysis is executed as an event within the GraphicalUserInterface.
         user_input = UserInput()
         user_interface = GraphicalUserInterface(user_input)
-
-        # Display loading message
-        user_interface.display_loading_message()
-        
-        # Download and store data in a list of models
-        list_transit_stations = create_transit_station_list_from_url(TRANSIT_STATIONS_DATASET_DESCRIPTOR)
-        list_storefronts = create_storefront_list_from_url(STOREFRONTS_DATASET_DESCRIPTOR)
-
-        # Terminal interaction
-        user_interface.populate_menus(list_transit_stations, list_storefronts)
+        user_interface.build_application_window()
         user_interface.start_user_interaction()
 
-    except Exception as exception: # Reraises exceptions from called functions/methods
-        print(exception)
+    # except Exception as exception: # Reraises exceptions from called functions/methods
+    #     print(exception)
         
 if __name__ == "__main__":
     main()

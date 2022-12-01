@@ -19,7 +19,7 @@ DEFAULT_STORE_CATEGORY = 'All'
 class UserInput:
     '''
     Class Name: UserInputInventory
-        Object of this class holds user input its instance attributes. Instances
+        Object of this class represents the all the user input. Instances
         of a 'UserInput' object includes: a transit station, a store category,
         a search radius, and the number of stores to display.
 
@@ -74,7 +74,7 @@ class UserInput:
         '''
         if type(self.name) is not str:
             raise TypeError("TypeError: The attribute 'name' must be a string")
-        
+
         if type(self.transit_station) is None:
             raise ValueError("ValueError: No transit station has been selected")
 
@@ -93,7 +93,7 @@ class UserInput:
         search_radius_text = '{:.1f}'.format(self.search_radius)
         if self.search_radius == 0:
             search_radius_text = 'infinite'
-        
+
         return (
             f"{self.name}\n"
             f"Transit Station: {self.transit_station.station_name}\n"
@@ -102,7 +102,7 @@ class UserInput:
             f"Max Display: {self.max_display_count}\n"
         )
 
-    
+
     def __eq__(self, other):
         '''
         Method Name: __eq__
@@ -112,15 +112,15 @@ class UserInput:
             other -- UserInput, object containing user input
         
         Raises:
+            TypeError -- raises if the parameter 'other' is not a UserInput object
             TypeError -- raises if the attribute 'name' is not a string
         
         Returns:
             bool, True if the attributes 'name' are the same, False otherwise
         '''
+        if other is not UserInput:
+            raise TypeError("TypeError: The parameter 'other' must be a UserInput object")
         if (type(self.name) is not str) or (type(other.name) is not str):
             raise TypeError("TypeError: The attribute 'name' must be a string")
 
         return self.name == other.name
-
-
-    

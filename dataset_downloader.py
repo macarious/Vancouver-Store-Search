@@ -18,7 +18,8 @@ transit_station_factory
 import requests
 
 
-TIMEOUT = 10 # Constants used for retrieving data
+TIMEOUT = 5 # Constants used for retrieving data
+CONNECTION_MAX_ATTEMPT = 3 # Maximum number of connection attempts before raising connection/timeout errors
 
 
 def read_url(url):
@@ -42,30 +43,36 @@ def read_url(url):
     '''
     if type(url) is not str:
         raise TypeError("TypeError: The parameter 'url' for function 'read_url' must be a string")
-    
-    try:
-        response = requests.get(url, timeout = TIMEOUT)
-        response.raise_for_status()
 
-    # Raises various errors with customized error messages when connection to URL is unsuccessful
-    except requests.ConnectionError:
-        raise ConnectionError("Error: Cannot connect to URL due to a network problem")
+    # 'Try-except' block is only used to catch all connection-related errors
+    connection_attempt_count = 0
+    connection_ok = False
+    while not connection_ok:
 
-    except requests.HTTPError:
-        raise requests.HTTPError("Error: A HTTP error has occured; URL may be invalid")
-    
-    except requests.TooManyRedirects:
-        raise requests.TooManyRedirects("Error: There are too many redirects while attempting to connect to URL")
-   
-    except requests.Timeout:
-        raise TimeoutError("Error: Connection has timed out while attempting to connect to URL")
+        try:
+            response = requests.get(url, timeout = TIMEOUT)
+            connection_attempt_count += 1
+
+        except requests.ConnectionError:
+            if connection_attempt_count > CONNECTION_MAX_ATTEMPT:
+                raise ConnectionError(f"Error: Cannot connect to URL due to a network problem after {connection_attempt_count} attempts")
+
+        except requests.HTTPError:
+            raise requests.HTTPError("Error: A HTTP error has occured; URL may be invalid")
+
+        except requests.TooManyRedirects:
+            raise requests.TooManyRedirects("Error: There are too many redirects while attempting to connect to URL")
+
+        except requests.Timeout:
+            if connection_attempt_count > CONNECTION_MAX_ATTEMPT:
+                raise TimeoutError(f"Error: Connection has timed out while attempting to connect to URL after {connection_attempt_count} attempts")
+        
+        else:
+            connection_ok = True
 
     text = response.text
 
     if text == '':
         raise ValueError("ValueError: Text does not contain any content")
-    
+
     return text
-
-
-

@@ -1,4 +1,4 @@
 {
     "python.formatting.provider": "yapf",
-    "editor.formatOnPaste": true
+    "editor.formatOnPaste": false
 }
