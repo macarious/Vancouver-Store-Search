@@ -234,6 +234,12 @@ CANVAS_OUTPUT_DISPLAY = {
     'height' : 460,
     'bg' : 'light gray'
 }
+CANVAS_DRAW_MAP = {
+    'outline' : 'navy',
+    'fill' : 'LightBlue1',
+    'width' : 2,
+}
+CANVAS_MAP_SCALE = 0.80
 TREEVIEW_OUTPUT_DISPLAY = {
     'height' : 20
 }
@@ -445,13 +451,13 @@ class GraphicalUserInterface:
         self.list_nearby_stores = find_nearby_stores(self.user_input, self.list_storefronts)
 
         self.__refresh_labelframe_output_display() # Refresh labelframe to clear existing output
-        self.__populate_labelframe_output_display() # Populate new labelframe with a 'Treeview' of columns
 
         if len(self.list_nearby_stores) == 0:
             self.label_message_display.config(**LABEL_LOADING_MESSAGE_COMPLETE_NO_RESULTS)
 
         else:
             self.__display_list_nearby_stores()
+            self.__display_map_nearby_stores()
             self.label_message_display.config(**LABEL_LOADING_MESSAGE_COMPLETE_NORMAL)
 
 
@@ -526,6 +532,53 @@ class GraphicalUserInterface:
             self.treeview_output_display.set(i, TREEVIEW_OUTPUT_DISPLAY_COLUMN_RETAIL_CATEGORY['column'], self.list_nearby_stores[i].storefront.retail_category)
 
 
+    def __display_map_nearby_stores(self):
+        for local_area_boundary in self.list_local_area_boundaries:
+            self.__draw_local_area_boundary(local_area_boundary.list_boundary_coordinates)
+
+
+    def __draw_local_area_boundary(self, list_boundary_coordinates):
+        list_polygon_coordinates = []
+        for coordinates in list_boundary_coordinates:
+            coordinates = self.__normalize_local_boundary_coordinates(coordinates)
+            list_polygon_coordinates.append(coordinates[0])
+            list_polygon_coordinates.append(coordinates[1])
+        self.canvas_output_display.create_polygon(list_polygon_coordinates, **CANVAS_DRAW_MAP)
+        self.canvas_output_display.pack(**DEFAULT_PACK_CONFIG)
+
+
+    def __find_scaled_centroid_all_local_area_boundary(self):
+        list_all_x_coordinates = []
+        list_all_y_coordinates = []
+        for local_area_boundary in self.list_local_area_boundaries:
+            list_x_coordinates, list_y_coordinates = zip(*local_area_boundary.list_boundary_coordinates)
+            list_all_x_coordinates.extend(list_x_coordinates)
+            list_all_y_coordinates.extend(list_y_coordinates)
+
+        map_min_x = min(list_all_x_coordinates)
+        map_max_x = max(list_all_x_coordinates)
+        map_min_y = min(list_all_y_coordinates)
+        map_max_y = max(list_all_y_coordinates)
+
+        self.scale = self.__find_canvas_scale(map_max_x - map_min_x, map_max_y - map_min_y)
+
+        map_centroid_x = self.scale * (map_min_x + map_max_x) / 2
+        map_centroid_y = self.scale * (map_min_y + map_max_y) / 2
+
+        return (map_centroid_x, map_centroid_y)
+
+
+    def __find_canvas_scale(self, map_range_x, map_range_y):
+        
+        self.canvas_output_display.update()
+
+        canvas_range_x = self.canvas_output_display.winfo_width()
+        canvas_range_y = self.canvas_output_display.winfo_height()
+        scale_x = canvas_range_x / map_range_x
+        scale_y = canvas_range_y / map_range_y
+        return min(scale_x, scale_y) * CANVAS_MAP_SCALE
+
+
     def __generate_list_station_names(self):
         '''
         Method Name: __generate_list_station_names
@@ -585,6 +638,24 @@ class GraphicalUserInterface:
 
         list_store_categories.append(ADDITIONAL_STORE_CATEGORY)
         self.list_store_categories = sorted(list_store_categories)
+
+
+    def __normalize_local_boundary_coordinates(self, coordinates):
+        self.canvas_output_display.update()
+        centroid_canvas = (self.canvas_output_display.winfo_width() / 2, self.canvas_output_display.winfo_height() / 2)
+        scaled_centroid_local_area_boundary = self.__find_scaled_centroid_all_local_area_boundary()
+        
+        x_offset = centroid_canvas[0] - scaled_centroid_local_area_boundary[0]
+        y_offset = centroid_canvas[1] - scaled_centroid_local_area_boundary[1]
+
+        normalized_x_coordinate = self.scale * coordinates[0] + x_offset
+
+        # Base point of canvas is in upper-left corner;
+        # and y-coordinates is positive in the downward direction
+        normalized_y_coordinates = -1 * (self.scale * coordinates[1] + y_offset)
+        normalized_y_coordinates += self.canvas_output_display.winfo_height()
+
+        return normalized_x_coordinate, normalized_y_coordinates
 
 
     def __populate_frame_title(self):
@@ -703,7 +774,7 @@ class GraphicalUserInterface:
 
     def __refresh_labelframe_output_display(self):
         self.notebook_output_display.destroy()
-        self.__populate_labelframe_output_display
+        self.__populate_labelframe_output_display()
 
 
     def __set_grid_configurations(self):
