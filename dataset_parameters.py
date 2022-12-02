@@ -47,3 +47,15 @@ STOREFRONTS_DATASET_DESCRIPTOR = DatasetDescriptor(
         'coorindates alt' : 'geo_point_2d',
     }
 )
+
+# Local Area Boundary
+LOCAL_AREA_BOUNDARY_DESCRIPTOR = DatasetDescriptor(
+    dataset_name = 'Local Area Boundary',
+    url = 'https://opendata.vancouver.ca/explore/dataset/local-area-boundary/download/?format=csv&timezone=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B&epsg=26910',
+    expected_headers = {
+        'abbreviation' : 'MAPID',
+        'local area' : 'Name',
+        'area coordinates' : 'Geom',
+        'centroid coordinates' : 'geo_point_2d',
+    }
+)

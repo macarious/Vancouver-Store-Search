@@ -34,12 +34,6 @@ requests - connects to an online dataset and parses data into text
 re - cleans data, removes/replaces unwanted characters in data
 json - extracts data from a json-encoded string (coordinates data)
 '''
-# Modules and Functions
-from dataset_parameters import TRANSIT_STATIONS_DATASET_DESCRIPTOR
-from dataset_parameters import STOREFRONTS_DATASET_DESCRIPTOR
-from storefront_factory import create_storefront_list_from_url
-from transit_station_factory import create_transit_station_list_from_url
-
 # Classes
 from model.user_input import UserInput
 from user_interface.graphical_user_interface import GraphicalUserInterface

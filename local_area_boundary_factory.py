@@ -4,9 +4,9 @@ HUI, Macarious Kin Fung
 
 Data Dashboard Final Project
 
-Module Name -- storefront_factory
+Module Name -- local_area_boundary
 
-This file contains functions that create 'Storefront' objects.
+This file contains functions that create 'LocalAreaBoundary' objects.
 
 This file is used by the driver file:
 graphical_user_interface.py
@@ -18,13 +18,16 @@ import json
 
 
 # Classes
-from model.storefront import Storefront
+from model.local_area_boundary import LocalAreaBoundary
 
 
-def create_storefront_list_from_url(dataset_descriptor):
+COORDINATES_SEPARATOR = ','
+
+
+def create_local_area_boundary_list_from_url(dataset_descriptor):
     '''
-    Function Name: create_storefront_list_from_url
-        Create a list of 'Storefront' objects from a url containg a text
+    Function Name: create_local_area_boundary_list_from_url
+        Create a list of 'LocalAreaBoundary' objects from a url containg a text
         file with multiple rows, where each row contains data separated by
         delimiters
     
@@ -50,20 +53,20 @@ def create_storefront_list_from_url(dataset_descriptor):
 
     # First extract header list from 0th row
     header_list = create_header_list(response_text_row[0], dataset_descriptor)
-    storefront_list = []
+    local_area_boundary_list = []
 
-    # Instantiate Storefront objects from 1st row onward
+    # Instantiate LocalAreaBoundary objects from 1st row onward
     for i in range(1, len(response_text_row)):
         if response_text_row[i] != '': # Skip empty rows; there exists an empty final row if the dataset ends with a new-line character
-            storefront_list.append(create_storefront_from_row(response_text_row[i], header_list, dataset_descriptor))
+            local_area_boundary_list.append(create_local_area_boundary_from_row(response_text_row[i], header_list, dataset_descriptor))
 
-    return storefront_list
+    return local_area_boundary_list
 
 
-def create_storefront_from_row(row_text, header_list, dataset_descriptor):
+def create_local_area_boundary_from_row(row_text, header_list, dataset_descriptor):
     '''
-    Function Name: create_storefront_from_row
-        Instantiates 'Storefront' objects by reading the data from a row of text
+    Function Name: create_local_area_boundary_from_row
+        Instantiates a 'LocalAreaBoundary' by reading data from a row of text
         separated by delimiters
     
     Parameters:
@@ -81,8 +84,8 @@ def create_storefront_from_row(row_text, header_list, dataset_descriptor):
         TypeError -- raises if the attribute 'expected_header' of class 'DatasetDescriptor' is not a dictionary
     
     Returns:
-        Storefront, object representing a storefront
-    '''    
+        LocalAreaBoundary, object representing a local area boundary
+    '''
     if type(row_text) is not str:
         raise TypeError("TypeError: The parameter 'row_text' must be a string")
 
@@ -103,51 +106,32 @@ def create_storefront_from_row(row_text, header_list, dataset_descriptor):
 
     row_text_list = row_text.strip().split(dataset_descriptor.delimiter)
 
-    store_id = None
-    business_name = None
-    address_unit = None
-    address_number = None
-    address_street = None
-    retail_category = None
-    coordinates = None
-    local_area = None
+    abbreviation = None
+    name = None
+    list_boundary_coordinates = None
+    centroid_coordinates = None
 
     # Map each data into the correct object attributes matching the correct column index
     for i in range(len(row_text_list)):
-        if i == header_list.index(dataset_descriptor.expected_headers['store id']):
-            store_id = int(row_text_list[i])
-
-        elif i == header_list.index(dataset_descriptor.expected_headers['business name']):
-            business_name = row_text_list[i]
-
-        elif i == header_list.index(dataset_descriptor.expected_headers['address unit']):
-            address_unit = row_text_list[i]
-
-        elif i == header_list.index(dataset_descriptor.expected_headers['address number']):
-            address_number = int(row_text_list[i])
-
-        elif i == header_list.index(dataset_descriptor.expected_headers['address street']):
-            address_street = row_text_list[i]
-
-        elif i == header_list.index(dataset_descriptor.expected_headers['retail category']):
-            retail_category = row_text_list[i]
-
-        elif i == header_list.index(dataset_descriptor.expected_headers['coordinates']):
-            coordinates = extract_coordinates(row_text_list[i])
+        if i == header_list.index(dataset_descriptor.expected_headers['abbreviation']):
+            abbreviation = row_text_list[i]
 
         elif i == header_list.index(dataset_descriptor.expected_headers['local area']):
-            local_area = row_text_list[i]
+            name = row_text_list[i]
 
-    return Storefront(
-        store_id, business_name, address_unit, address_number, address_street,
-        retail_category, coordinates, local_area
-        )
+        elif i == header_list.index(dataset_descriptor.expected_headers['area coordinates']):
+            list_boundary_coordinates = extract_coordinates(row_text_list[i])
+
+        elif i == header_list.index(dataset_descriptor.expected_headers['centroid coordinates']):
+            centroid_coordinates = tuple(map(float, row_text_list[i].split(COORDINATES_SEPARATOR)))
+
+    return LocalAreaBoundary(abbreviation, name, list_boundary_coordinates, centroid_coordinates)
 
 
 def create_header_list(start_row_text, dataset_descriptor):
     '''
     Function Name: create_header_list
-        Creates a list of header from a text of row separated by delimiters
+        Creates a list of headers from a text of row separated by delimiters
     
     Parameters:
         start_row_text -- str, the first row of text, which contains the headers
@@ -164,42 +148,10 @@ def create_header_list(start_row_text, dataset_descriptor):
         raise TypeError("TypeError: The parameter 'start_row_text' must be a string")
     
     if type(dataset_descriptor.delimiter) is not str:
-        raise TypeError("TypeError: The attribute 'delimiter' from 'dataset_descriptor' object must be a string")
+        raise TypeError("TypeError: The attribute 'delimiter' of class 'DatasetDescriptor must be a string")
     
     header_list = start_row_text.strip().split(dataset_descriptor.delimiter)
     return header_list
-
-
-def concatenate_address(unit, number, street):
-    '''
-    Function Name: concatenate_address
-        Concatenate the unit, civic number, and street address into a full address
-    
-    Parameters:
-        unit -- str, unit number of storefront, or 'N/A' of there exists no unit number
-        number -- int, civic number of storefront
-        street -- str, street name of storefront
-    
-    Raises:
-        TypeError -- raises if the parameter 'unit' is not a string
-        TypeError -- raises if the parameter 'number' is not an integer
-        TypeError -- raises if the parameter 'street' is not a string
-    
-    Returns:
-        _type_, _description_
-    '''
-    if type(unit) is not str:
-        raise TypeError("TypeError: The parameter 'unit' must be a string")
-    if type(number) is not int:
-        raise TypeError("TypeError: The attribute 'number' must be an integer")
-    if type(street) is not str:
-        raise TypeError("TypeError: The parameter 'street' must be a string")
-
-    full_address = number + '' + street
-    if unit != 'N/A':
-        full_address = unit + '-' + full_address
-  
-    return full_address
 
         
 def extract_coordinates(coordinates_json):
@@ -222,5 +174,13 @@ def extract_coordinates(coordinates_json):
     # Remove extra double-quotations (added when reading the data with requests) from raw data
     # and deserialize the json-format string to a dictionary
     coordinates_dictionary = json.loads(coordinates_json.replace('""', '"').strip('"'))
+    list_coordinates = []
+    for coordinates in coordinates_dictionary['coordinates'][0]:
+        list_coordinates.append(tuple(coordinates))
 
-    return tuple(coordinates_dictionary['coordinates'])
+    return list_coordinates
+
+
+
+
+    

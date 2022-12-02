@@ -10,11 +10,13 @@ These functions are used by the driver file:
 data_dashboard.py
 '''
 # Modules and Functions
+from dataset_parameters import LOCAL_AREA_BOUNDARY_DESCRIPTOR
 from dataset_parameters import TRANSIT_STATIONS_DATASET_DESCRIPTOR
 from dataset_parameters import STOREFRONTS_DATASET_DESCRIPTOR
-import nearby_stores_finder
-import storefront_factory
-import transit_station_factory
+from local_area_boundary_factory import create_local_area_boundary_list_from_url
+from nearby_stores_finder import find_nearby_stores
+from storefront_factory import create_storefront_list_from_url
+from transit_station_factory import create_transit_station_list_from_url
 
 # Downloaded Libraries
 from tkinter import *
@@ -46,7 +48,7 @@ FRAME_TITLE_GRID = {
 LABELFRAME_MESSAGE_DISPLAY = {
     'text' : 'Status/Messages',
     'width' : 480,
-    'height' : 80,
+    'height' : 120,
     'relief' : SOLID,
 }
 LABELFRAME_MESSAGE_DISPLAY_GRID = {
@@ -58,7 +60,7 @@ LABELFRAME_MESSAGE_DISPLAY_GRID = {
 LABELFRAME_INSTRUCTIONS = {
     'text' : 'Instructions',
     'width' : 480,
-    'height' : 80,
+    'height' : 120,
     'relief' : SOLID
 }
 LABELFRAME_INSTRUCTIONS_GRID = {
@@ -164,7 +166,7 @@ LABEL_LOADING_MESSAGE_READY = {
     'foreground' : 'sea green',
 }
 LABEL_LOADING_MESSAGE_COMPLETE_NORMAL = {
-    'text' : 'The program has finished searching.',
+    'text' : 'The program has finished searching.\nPlease select between Map View or List View',
     'foreground' : 'sea green',
 }
 LABEL_LOADING_MESSAGE_COMPLETE_NO_RESULTS = {
@@ -205,41 +207,68 @@ BUTTON_SEARCH = {
     'text' : 'SEARCH',
     'state' : 'disabled',
 }
-SCROLLBAR_OUTPUT_DISPLAY = {
-        'orient' : VERTICAL
+NOTEBOOK_OUTPUT_DISPLAY = {
+    'width' : 640,
+    'height' : 460,
 }
-TREEVIEW_OUTPUT = {
+FRAME_NOTEBOOK_MAP_VIEW = {
+    'width' : 700,
+    'height' : 460,
+    'relief' : FLAT,
+}
+FRAME_NOTEBOOK_LIST_VIEW = {
+    'width' : 640,
+    'height' : 460,
+    'relief' : FLAT,
+}
+TAB_NOTEBOOK_TAB_MAP_VIEW = {
+    'text' : 'Map View',
+    'sticky' : W,
+}
+TAB_NOTEBOOK_TAB_LIST_VIEW = {
+    'text' : 'List View',
+    'sticky' : W,
+}
+CANVAS_OUTPUT_DISPLAY = {
+    'width' : 700,
+    'height' : 460,
+    'bg' : 'light gray'
+}
+TREEVIEW_OUTPUT_DISPLAY = {
     'height' : 20
 }
-TREEVIEW_OUTPUT_GRID = {
+SCROLLBAR_OUTPUT_DISPLAY_DISPLAY = {
+    'orient' : VERTICAL
+}
+TREEVIEW_OUTPUT_DISPLAY_GRID = {
     'row' : 0,
     'column' : 0,
 }
-SCROLLBAR_OUTPUT_GRID = {
+SCROLLBAR_OUTPUT_DISPLAY_GRID = {
     'row' : 0,
     'column' : 1,
 }
-TREEVIEW_OUTPUT_COLUMN_INDEX = {
+TREEVIEW_OUTPUT_DISPLAY_COLUMN_INDEX = {
     'column' : '#0',
     'width' : 40,
     'anchor' : E,
 }
-TREEVIEW_OUTPUT_COLUMN_STORE_NAME = {
+TREEVIEW_OUTPUT_DISPLAY_COLUMN_STORE_NAME = {
     'column' : 'Store Name',
     'width' : 180,
     'anchor' : E,
 }
-TREEVIEW_OUTPUT_COLUMN_DISTANCE = {
+TREEVIEW_OUTPUT_DISPLAY_COLUMN_DISTANCE = {
     'column' : 'Distance',
     'width' : 60,
     'anchor' : E,
 }
-TREEVIEW_OUTPUT_COLUMN_ADDRESS = {
+TREEVIEW_OUTPUT_DISPLAY_COLUMN_ADDRESS = {
     'column' : 'Address',
-    'width' : 120,
+    'width' : 160,
     'anchor' : E,
 }
-TREEVIEW_OUTPUT_COLUMN_RETAIL_CATEGORY = {
+TREEVIEW_OUTPUT_DISPLAY_COLUMN_RETAIL_CATEGORY = {
     'column' : 'Retail Category',
     'width' : 180,
     'anchor' : E,
@@ -250,7 +279,8 @@ PRIMARY_FRAME_GRID_ROW_WEIGHT = {
     2 : 0,
     3 : 0,
     4 : 0,
-    5 : 1,
+    5 : 0,
+    6 : 1,
 } # key is row index; value is grid weight
 PRIMARY_FRAME_GRID_COLUMN_WEIGHT = {
     0 : 0,
@@ -328,6 +358,7 @@ class GraphicalUserInterface:
         self.list_station_names = [] # Placeholder empty list, for menu display in GUI
         self.list_store_categories = [] # Placeholder empty list, for menu display in GUI
         self.list_nearby_stores = []  # Placeholder empty list, for output display in GUI
+        self.list_local_area_boundaries = []  # Placeholder empty list, for output display in GUI
 
 
     def __str__(self):
@@ -392,6 +423,7 @@ class GraphicalUserInterface:
         self.__populate_labelframe_search_radius_control()
         self.__populate_labelframe_display_count_control()
         self.__populate_frame_search_button_control()
+        self.__populate_labelframe_output_display()
 
         self.__set_minimum_window_size()
 
@@ -401,15 +433,16 @@ class GraphicalUserInterface:
 
 
     def create_list_of_objects_from_url(self):
-        self.list_transit_stations = transit_station_factory.create_transit_station_list_from_url(TRANSIT_STATIONS_DATASET_DESCRIPTOR)
-        self.list_storefronts = storefront_factory.create_storefront_list_from_url(STOREFRONTS_DATASET_DESCRIPTOR)
+        self.list_transit_stations = create_transit_station_list_from_url(TRANSIT_STATIONS_DATASET_DESCRIPTOR)
+        self.list_storefronts = create_storefront_list_from_url(STOREFRONTS_DATASET_DESCRIPTOR)
+        self.list_local_area_boundaries = create_local_area_boundary_list_from_url(LOCAL_AREA_BOUNDARY_DESCRIPTOR)
 
 
     def start_search_button_event(self):
         self.__update_user_input()
 
         # Analysis is done in the 'nearbystores_finder' module
-        self.list_nearby_stores = nearby_stores_finder.find_nearby_stores(self.user_input, self.list_storefronts)
+        self.list_nearby_stores = find_nearby_stores(self.user_input, self.list_storefronts)
 
         self.__refresh_labelframe_output_display() # Refresh labelframe to clear existing output
         self.__populate_labelframe_output_display() # Populate new labelframe with a 'Treeview' of columns
@@ -486,11 +519,11 @@ class GraphicalUserInterface:
 
     def __display_list_nearby_stores(self):
         for i in range(self.user_input.max_display_count):
-            self.treeview_output.insert('', index = i, iid = i, text = i + 1) # Insert new row with index starting at 1 (ex. column ID = 0 -> text = 1)
-            self.treeview_output.set(i, TREEVIEW_OUTPUT_COLUMN_STORE_NAME['column'], self.list_nearby_stores[i].storefront.business_name)
-            self.treeview_output.set(i, TREEVIEW_OUTPUT_COLUMN_DISTANCE['column'], '{:.1f}'.format(self.list_nearby_stores[i].distance) + ' ' + DISTANCE_UNIT_DISPLAY)
-            self.treeview_output.set(i, TREEVIEW_OUTPUT_COLUMN_ADDRESS['column'], self.list_nearby_stores[i].storefront.full_address)
-            self.treeview_output.set(i, TREEVIEW_OUTPUT_COLUMN_RETAIL_CATEGORY['column'], self.list_nearby_stores[i].storefront.retail_category)
+            self.treeview_output_display.insert('', index = i, iid = i, text = i + 1) # Insert new row with index starting at 1 (ex. column ID = 0 -> text = 1)
+            self.treeview_output_display.set(i, TREEVIEW_OUTPUT_DISPLAY_COLUMN_STORE_NAME['column'], self.list_nearby_stores[i].storefront.business_name)
+            self.treeview_output_display.set(i, TREEVIEW_OUTPUT_DISPLAY_COLUMN_DISTANCE['column'], DISTANCE_UNIT_FORMAT.format(self.list_nearby_stores[i].distance) + ' ' + DISTANCE_UNIT_DISPLAY)
+            self.treeview_output_display.set(i, TREEVIEW_OUTPUT_DISPLAY_COLUMN_ADDRESS['column'], self.list_nearby_stores[i].storefront.full_address)
+            self.treeview_output_display.set(i, TREEVIEW_OUTPUT_DISPLAY_COLUMN_RETAIL_CATEGORY['column'], self.list_nearby_stores[i].storefront.retail_category)
 
 
     def __generate_list_station_names(self):
@@ -592,23 +625,37 @@ class GraphicalUserInterface:
 
 
     def __populate_labelframe_output_display(self):
-        self.treeview_output = ttk.Treeview(self.labelframe_output_display, **TREEVIEW_OUTPUT, style = 'output.Treeview')
-        self.scrollbar_output = ttk.Scrollbar(self.labelframe_output_display, **SCROLLBAR_OUTPUT_DISPLAY, command = self.treeview_output.yview)
 
-        self.treeview_output.grid(**TREEVIEW_OUTPUT_GRID, **DEFAULT_GRID_CONFIG)
-        self.scrollbar_output.grid(**SCROLLBAR_OUTPUT_GRID, **DEFAULT_GRID_CONFIG)
+        self.notebook_output_display = ttk.Notebook(self.labelframe_output_display, **NOTEBOOK_OUTPUT_DISPLAY)
 
-        self.treeview_output.config(columns = HEADER_LIST_NEARBY_STORE)
-        self.treeview_output.config(yscrollcommand = self.scrollbar_output.set)
+        self.tab_canvas = ttk.Frame(self.notebook_output_display, **FRAME_NOTEBOOK_MAP_VIEW)
+        self.tab_treeview = ttk.Frame(self.notebook_output_display, **FRAME_NOTEBOOK_LIST_VIEW)
+        self.notebook_output_display.add(self.tab_canvas, **TAB_NOTEBOOK_TAB_MAP_VIEW)
+        self.notebook_output_display.add(self.tab_treeview, **TAB_NOTEBOOK_TAB_LIST_VIEW)
+        self.notebook_output_display.pack(**DEFAULT_PACK_CONFIG)
+
+        # Build Map View - Canvas
+        self.canvas_output_display = Canvas(self.tab_canvas, **CANVAS_OUTPUT_DISPLAY)
+        self.canvas_output_display.pack(**DEFAULT_PACK_CONFIG)
+
+        # Build List View - Treeview
+        self.treeview_output_display = ttk.Treeview(self.tab_treeview, **TREEVIEW_OUTPUT_DISPLAY, style = 'output.Treeview')
+        self.scrollbar_output_display = ttk.Scrollbar(self.tab_treeview, **SCROLLBAR_OUTPUT_DISPLAY_DISPLAY, command = self.treeview_output_display.yview)
+
+        self.treeview_output_display.grid(**TREEVIEW_OUTPUT_DISPLAY_GRID, **DEFAULT_GRID_CONFIG)
+        self.scrollbar_output_display.grid(**SCROLLBAR_OUTPUT_DISPLAY_GRID, **DEFAULT_GRID_CONFIG)
+
+        self.treeview_output_display.config(columns = HEADER_LIST_NEARBY_STORE)
+        self.treeview_output_display.config(yscrollcommand = self.scrollbar_output_display.set)
 
         for header in HEADER_LIST_NEARBY_STORE:
-            self.treeview_output.heading(header, text = header)
+            self.treeview_output_display.heading(header, text = header)
 
-        self.treeview_output.column(**TREEVIEW_OUTPUT_COLUMN_INDEX)
-        self.treeview_output.column(**TREEVIEW_OUTPUT_COLUMN_STORE_NAME)
-        self.treeview_output.column(**TREEVIEW_OUTPUT_COLUMN_DISTANCE)
-        self.treeview_output.column(**TREEVIEW_OUTPUT_COLUMN_ADDRESS)
-        self.treeview_output.column(**TREEVIEW_OUTPUT_COLUMN_RETAIL_CATEGORY)
+        self.treeview_output_display.column(**TREEVIEW_OUTPUT_DISPLAY_COLUMN_INDEX)
+        self.treeview_output_display.column(**TREEVIEW_OUTPUT_DISPLAY_COLUMN_STORE_NAME)
+        self.treeview_output_display.column(**TREEVIEW_OUTPUT_DISPLAY_COLUMN_DISTANCE)
+        self.treeview_output_display.column(**TREEVIEW_OUTPUT_DISPLAY_COLUMN_ADDRESS)
+        self.treeview_output_display.column(**TREEVIEW_OUTPUT_DISPLAY_COLUMN_RETAIL_CATEGORY)
 
 
     def __populate_labelframe_search_radius_control(self):
@@ -655,10 +702,8 @@ class GraphicalUserInterface:
 
 
     def __refresh_labelframe_output_display(self):
-        self.labelframe_output_display.destroy()
-        self.labelframe_output_display = ttk.Labelframe(self.master, **LABELFRAME_OUTPUT_DISPLAY)
-        self.labelframe_output_display.grid(**LABELFRAME_OUTPUT_DISPLAY_GRID, **DEFAULT_GRID_CONFIG)
-
+        self.notebook_output_display.destroy()
+        self.__populate_labelframe_output_display
 
 
     def __set_grid_configurations(self):
@@ -670,7 +715,7 @@ class GraphicalUserInterface:
 
 
     def __set_minimum_window_size(self):
-        self.master.update() # Update the size of window before setting it as minimum size
+        self.master.update() # Update the size of window after frame/widget creating
         self.master.minsize(self.master.winfo_width(), self.master.winfo_height())
 
 

@@ -9,7 +9,7 @@ Module Name -- transit_station_factory
 This file contains functions that create 'TransitStation' objects.
 
 This file is used by the driver file:
-data_dashboard.py
+graphical_user_interface.py
 '''
 
 # Modules
