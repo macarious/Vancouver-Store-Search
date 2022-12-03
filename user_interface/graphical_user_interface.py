@@ -19,7 +19,7 @@ from storefront_factory import create_storefront_list_from_url
 from transit_station_factory import create_transit_station_list_from_url
 
 # Classes
-from user_interface.visualization_view import VisualizationView
+from user_interface.visualization import VisualizationView
 
 # Downloaded Libraries
 from tkinter import *
