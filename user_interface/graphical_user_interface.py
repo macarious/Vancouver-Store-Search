@@ -18,6 +18,9 @@ from nearby_stores_finder import find_nearby_stores
 from storefront_factory import create_storefront_list_from_url
 from transit_station_factory import create_transit_station_list_from_url
 
+# Classes
+from user_interface.visualization_view import VisualizationView
+
 # Downloaded Libraries
 from tkinter import *
 from tkinter import ttk
@@ -166,12 +169,12 @@ LABEL_LOADING_MESSAGE_READY = {
     'foreground' : 'sea green',
 }
 LABEL_LOADING_MESSAGE_COMPLETE_NORMAL = {
-    'text' : 'The program has finished searching.\nPlease select between Map View or List View',
+    'text' : 'The program has finished searching.\nPlease select between Visualization or List View',
     'foreground' : 'sea green',
 }
 LABEL_LOADING_MESSAGE_COMPLETE_NO_RESULTS = {
-    'text' : 'The program has finished searching.\nNo results found.\nPlease adjust search radius and/or maximum display items.',
-    'foreground' : 'sea green',
+    'text' : 'The program has finished searching.\nNo results found; please adjust search radius/max items to display.',
+    'foreground' : 'red',
 }
 COMBOBOX_STATION_CONTROL = {
     'state' : 'readonly',
@@ -182,7 +185,7 @@ COMBOBOX_CATEGORY_CONTROL = {
 SCALE_SEARCH_RADIUS = {
     'orient' : 'horizontal',
     'from_' : 0,
-    'to' : 50000,
+    'to' : 5000,
     'state' : 'disabled',
     'length' : 300,
 }
@@ -193,13 +196,13 @@ LABEL_SEARCH_RADIUS = {
 }
 SCALE_DISPLAY_COUNT = {
     'orient' : 'horizontal',
-    'from_' : 10,
-    'to' : 100,
+    'from_' : 50,
+    'to' : 5000,
     'state' : 'disabled',
     'length' : 300,
 }
 LABEL_DISPLAY_COUNT = {
-    'text' : 10,
+    'text' : 50,
     'font' : ('Arial', 10),
     'width' : 10,
 }
@@ -219,10 +222,10 @@ FRAME_NOTEBOOK_MAP_VIEW = {
 FRAME_NOTEBOOK_LIST_VIEW = {
     'width' : 640,
     'height' : 460,
-    'relief' : FLAT,
+    'relief' : SOLID,
 }
 TAB_NOTEBOOK_TAB_MAP_VIEW = {
-    'text' : 'Map View',
+    'text' : 'Visualization',
     'sticky' : W,
 }
 TAB_NOTEBOOK_TAB_LIST_VIEW = {
@@ -232,14 +235,8 @@ TAB_NOTEBOOK_TAB_LIST_VIEW = {
 CANVAS_OUTPUT_DISPLAY = {
     'width' : 700,
     'height' : 460,
-    'bg' : 'light gray'
+    'bg' : 'gray90'
 }
-CANVAS_DRAW_MAP = {
-    'outline' : 'navy',
-    'fill' : 'LightBlue1',
-    'width' : 2,
-}
-CANVAS_MAP_SCALE = 0.80
 TREEVIEW_OUTPUT_DISPLAY = {
     'height' : 20
 }
@@ -256,27 +253,27 @@ SCROLLBAR_OUTPUT_DISPLAY_GRID = {
 }
 TREEVIEW_OUTPUT_DISPLAY_COLUMN_INDEX = {
     'column' : '#0',
-    'width' : 40,
+    'width' : 50,
     'anchor' : E,
 }
 TREEVIEW_OUTPUT_DISPLAY_COLUMN_STORE_NAME = {
     'column' : 'Store Name',
-    'width' : 180,
+    'width' : 200,
     'anchor' : E,
 }
 TREEVIEW_OUTPUT_DISPLAY_COLUMN_DISTANCE = {
     'column' : 'Distance',
-    'width' : 60,
+    'width' : 50,
     'anchor' : E,
 }
 TREEVIEW_OUTPUT_DISPLAY_COLUMN_ADDRESS = {
     'column' : 'Address',
-    'width' : 160,
+    'width' : 145,
     'anchor' : E,
 }
 TREEVIEW_OUTPUT_DISPLAY_COLUMN_RETAIL_CATEGORY = {
     'column' : 'Retail Category',
-    'width' : 180,
+    'width' : 175,
     'anchor' : E,
 }
 PRIMARY_FRAME_GRID_ROW_WEIGHT = {
@@ -297,7 +294,7 @@ PRIMARY_FRAME_GRID_COLUMN_WEIGHT = {
     5 : 1,
 }  # key is column index; value is grid weight
 HEADER_LIST_NEARBY_STORE = ['Store Name', 'Distance', 'Address', 'Retail Category',]
-DISTANCE_UNIT_DISPLAY = 'm'
+DISTANCE_UNIT_DISPLAY = 'km'
 DISTANCE_UNIT_SCROLLBAR = 'km'
 METRE_TO_KILOMETRE_CONVERSTION = 1 / 1000
 DISTANCE_UNIT_FORMAT = '{:.1f}'
@@ -457,7 +454,8 @@ class GraphicalUserInterface:
 
         else:
             self.__display_list_nearby_stores()
-            self.__display_map_nearby_stores()
+            current_map_view = VisualizationView(self.canvas_output_display, self.user_input, self.list_local_area_boundaries, self.list_nearby_stores)
+            current_map_view.display_map_nearby_stores()
             self.label_message_display.config(**LABEL_LOADING_MESSAGE_COMPLETE_NORMAL)
 
 
@@ -524,59 +522,13 @@ class GraphicalUserInterface:
 
 
     def __display_list_nearby_stores(self):
-        for i in range(self.user_input.max_display_count):
+        display_count = min(len(self.list_nearby_stores), self.user_input.max_display_count)
+        for i in range(display_count):
             self.treeview_output_display.insert('', index = i, iid = i, text = i + 1) # Insert new row with index starting at 1 (ex. column ID = 0 -> text = 1)
             self.treeview_output_display.set(i, TREEVIEW_OUTPUT_DISPLAY_COLUMN_STORE_NAME['column'], self.list_nearby_stores[i].storefront.business_name)
-            self.treeview_output_display.set(i, TREEVIEW_OUTPUT_DISPLAY_COLUMN_DISTANCE['column'], DISTANCE_UNIT_FORMAT.format(self.list_nearby_stores[i].distance) + ' ' + DISTANCE_UNIT_DISPLAY)
+            self.treeview_output_display.set(i, TREEVIEW_OUTPUT_DISPLAY_COLUMN_DISTANCE['column'], DISTANCE_UNIT_FORMAT.format(self.list_nearby_stores[i].distance * METRE_TO_KILOMETRE_CONVERSTION) + ' ' + DISTANCE_UNIT_DISPLAY)
             self.treeview_output_display.set(i, TREEVIEW_OUTPUT_DISPLAY_COLUMN_ADDRESS['column'], self.list_nearby_stores[i].storefront.full_address)
             self.treeview_output_display.set(i, TREEVIEW_OUTPUT_DISPLAY_COLUMN_RETAIL_CATEGORY['column'], self.list_nearby_stores[i].storefront.retail_category)
-
-
-    def __display_map_nearby_stores(self):
-        for local_area_boundary in self.list_local_area_boundaries:
-            self.__draw_local_area_boundary(local_area_boundary.list_boundary_coordinates)
-
-
-    def __draw_local_area_boundary(self, list_boundary_coordinates):
-        list_polygon_coordinates = []
-        for coordinates in list_boundary_coordinates:
-            coordinates = self.__normalize_local_boundary_coordinates(coordinates)
-            list_polygon_coordinates.append(coordinates[0])
-            list_polygon_coordinates.append(coordinates[1])
-        self.canvas_output_display.create_polygon(list_polygon_coordinates, **CANVAS_DRAW_MAP)
-        self.canvas_output_display.pack(**DEFAULT_PACK_CONFIG)
-
-
-    def __find_scaled_centroid_all_local_area_boundary(self):
-        list_all_x_coordinates = []
-        list_all_y_coordinates = []
-        for local_area_boundary in self.list_local_area_boundaries:
-            list_x_coordinates, list_y_coordinates = zip(*local_area_boundary.list_boundary_coordinates)
-            list_all_x_coordinates.extend(list_x_coordinates)
-            list_all_y_coordinates.extend(list_y_coordinates)
-
-        map_min_x = min(list_all_x_coordinates)
-        map_max_x = max(list_all_x_coordinates)
-        map_min_y = min(list_all_y_coordinates)
-        map_max_y = max(list_all_y_coordinates)
-
-        self.scale = self.__find_canvas_scale(map_max_x - map_min_x, map_max_y - map_min_y)
-
-        map_centroid_x = self.scale * (map_min_x + map_max_x) / 2
-        map_centroid_y = self.scale * (map_min_y + map_max_y) / 2
-
-        return (map_centroid_x, map_centroid_y)
-
-
-    def __find_canvas_scale(self, map_range_x, map_range_y):
-        
-        self.canvas_output_display.update()
-
-        canvas_range_x = self.canvas_output_display.winfo_width()
-        canvas_range_y = self.canvas_output_display.winfo_height()
-        scale_x = canvas_range_x / map_range_x
-        scale_y = canvas_range_y / map_range_y
-        return min(scale_x, scale_y) * CANVAS_MAP_SCALE
 
 
     def __generate_list_station_names(self):
@@ -640,24 +592,6 @@ class GraphicalUserInterface:
         self.list_store_categories = sorted(list_store_categories)
 
 
-    def __normalize_local_boundary_coordinates(self, coordinates):
-        self.canvas_output_display.update()
-        centroid_canvas = (self.canvas_output_display.winfo_width() / 2, self.canvas_output_display.winfo_height() / 2)
-        scaled_centroid_local_area_boundary = self.__find_scaled_centroid_all_local_area_boundary()
-        
-        x_offset = centroid_canvas[0] - scaled_centroid_local_area_boundary[0]
-        y_offset = centroid_canvas[1] - scaled_centroid_local_area_boundary[1]
-
-        normalized_x_coordinate = self.scale * coordinates[0] + x_offset
-
-        # Base point of canvas is in upper-left corner;
-        # and y-coordinates is positive in the downward direction
-        normalized_y_coordinates = -1 * (self.scale * coordinates[1] + y_offset)
-        normalized_y_coordinates += self.canvas_output_display.winfo_height()
-
-        return normalized_x_coordinate, normalized_y_coordinates
-
-
     def __populate_frame_title(self):
         self.label_title = ttk.Label(self.frame_title, **LABEL_TITLE)
         self.label_author = ttk.Label(self.frame_title, **LABEL_AUTHOR)
@@ -678,7 +612,7 @@ class GraphicalUserInterface:
 
     def __populate_labelframe_display_count_control(self):
         self.display_count_variable = IntVar()
-        self.display_count_variable.set(10)
+        self.display_count_variable.set(SCALE_DISPLAY_COUNT['from_'])
         self.scale_display_count = ttk.Scale(self.labelframe_display_count_control, variable = self.display_count_variable, **SCALE_DISPLAY_COUNT, command = self.update_label_display_count_event)
         self.scale_display_count.pack(**DEFAULT_PACK_CONFIG, side = LEFT)
         self.label_display_count = ttk.Label(self.labelframe_display_count_control, **LABEL_DISPLAY_COUNT)
@@ -705,7 +639,7 @@ class GraphicalUserInterface:
         self.notebook_output_display.add(self.tab_treeview, **TAB_NOTEBOOK_TAB_LIST_VIEW)
         self.notebook_output_display.pack(**DEFAULT_PACK_CONFIG)
 
-        # Build Map View - Canvas
+        # Build Visualization - Canvas
         self.canvas_output_display = Canvas(self.tab_canvas, **CANVAS_OUTPUT_DISPLAY)
         self.canvas_output_display.pack(**DEFAULT_PACK_CONFIG)
 
@@ -731,7 +665,7 @@ class GraphicalUserInterface:
 
     def __populate_labelframe_search_radius_control(self):
         self.search_radius_variable = DoubleVar()
-        self.search_radius_variable.set(0.0)
+        self.search_radius_variable.set(SCALE_SEARCH_RADIUS['from_'])
         self.scale_search_radius = ttk.Scale(self.labelframe_search_radius_control, variable = self.search_radius_variable, **SCALE_SEARCH_RADIUS, command = self.update_label_search_radius_event)
         self.scale_search_radius.pack(**DEFAULT_PACK_CONFIG, side = LEFT)
         self.label_search_radius = ttk.Label(self.labelframe_search_radius_control, **LABEL_SEARCH_RADIUS)

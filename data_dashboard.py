@@ -44,8 +44,10 @@ def main():
 
     # try:
         # Instantiate user input and user interface
-        # In this program, the GUI/dashboard acts as the console because the program is
-        # event-driven. Analysis is executed as an event within the GraphicalUserInterface.
+        # In this program, the GUI acts as the console because the program is
+        # event-driven. Dataset downloading/processing related functions are
+        # called during the construction of the GUI. Analysis related functions
+        # are called within user-triggered events.
         user_input = UserInput()
         user_interface = GraphicalUserInterface(user_input)
         user_interface.build_application_window()

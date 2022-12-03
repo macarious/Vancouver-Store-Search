@@ -123,7 +123,9 @@ def create_local_area_boundary_from_row(row_text, header_list, dataset_descripto
             list_boundary_coordinates = extract_coordinates(row_text_list[i])
 
         elif i == header_list.index(dataset_descriptor.expected_headers['centroid coordinates']):
-            centroid_coordinates = tuple(map(float, row_text_list[i].split(COORDINATES_SEPARATOR)))
+            # 2D x and y coordinates in dataset are in reversed order
+            centroid_coordinates = map(float, row_text_list[i].split(COORDINATES_SEPARATOR)[::-1])
+            centroid_coordinates = tuple(centroid_coordinates)
 
     return LocalAreaBoundary(abbreviation, name, list_boundary_coordinates, centroid_coordinates)
 
