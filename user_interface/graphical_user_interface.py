@@ -19,6 +19,7 @@ from storefront_factory import create_storefront_list_from_url
 from transit_station_factory import create_transit_station_list_from_url
 
 # Classes
+from model.user_input import UserInput
 from user_interface.visualization import VisualizationView
 
 # Downloaded Libraries
@@ -173,7 +174,7 @@ LABEL_LOADING_MESSAGE_COMPLETE_NORMAL = {
     'foreground' : 'sea green',
 }
 LABEL_LOADING_MESSAGE_COMPLETE_NO_RESULTS = {
-    'text' : 'The program has finished searching.\nNo results found; please adjust search radius/max items to display.',
+    'text' : 'The program has finished searching.\nNo results found; please adjust the search radius.',
     'foreground' : 'red',
 }
 COMBOBOX_STATION_CONTROL = {
@@ -197,7 +198,7 @@ LABEL_SEARCH_RADIUS = {
 SCALE_DISPLAY_COUNT = {
     'orient' : 'horizontal',
     'from_' : 50,
-    'to' : 5000,
+    'to' : 1000,
     'state' : 'disabled',
     'length' : 300,
 }
@@ -211,7 +212,7 @@ BUTTON_SEARCH = {
     'state' : 'disabled',
 }
 NOTEBOOK_OUTPUT_DISPLAY = {
-    'width' : 640,
+    'width' : 650,
     'height' : 460,
 }
 FRAME_NOTEBOOK_MAP_VIEW = {
@@ -220,7 +221,7 @@ FRAME_NOTEBOOK_MAP_VIEW = {
     'relief' : FLAT,
 }
 FRAME_NOTEBOOK_LIST_VIEW = {
-    'width' : 640,
+    'width' : 650,
     'height' : 460,
     'relief' : SOLID,
 }
@@ -233,26 +234,39 @@ TAB_NOTEBOOK_TAB_LIST_VIEW = {
     'sticky' : W,
 }
 CANVAS_OUTPUT_DISPLAY = {
-    'width' : 700,
-    'height' : 460,
-    'bg' : 'gray90'
+    'width' : 485,
+    'height' : 450,
+}
+CANVAS_OUT_DISPLAY_GRID = {
+    'row' : 0,
+    'column' : 0,
+}
+LABELFRAME_OUTPUT_LEGEND = {
+    'text' : 'Legend',
+    'width' : 160,
+    'height' : 450,
+    'relief' : SOLID,
+}
+LABELFRAME_OUTPUT_LEGEND_GRID = {
+    'row' : 0,
+    'column' : 1,
 }
 TREEVIEW_OUTPUT_DISPLAY = {
     'height' : 20
 }
-SCROLLBAR_OUTPUT_DISPLAY_DISPLAY = {
-    'orient' : VERTICAL
-}
 TREEVIEW_OUTPUT_DISPLAY_GRID = {
     'row' : 0,
     'column' : 0,
+}
+SCROLLBAR_OUTPUT_DISPLAY_DISPLAY = {
+    'orient' : VERTICAL
 }
 SCROLLBAR_OUTPUT_DISPLAY_GRID = {
     'row' : 0,
     'column' : 1,
 }
 TREEVIEW_OUTPUT_DISPLAY_COLUMN_INDEX = {
-    'column' : '#0',
+    'column' : '#0', # Default name for root column
     'width' : 50,
     'anchor' : E,
 }
@@ -263,7 +277,7 @@ TREEVIEW_OUTPUT_DISPLAY_COLUMN_STORE_NAME = {
 }
 TREEVIEW_OUTPUT_DISPLAY_COLUMN_DISTANCE = {
     'column' : 'Distance',
-    'width' : 50,
+    'width' : 60,
     'anchor' : E,
 }
 TREEVIEW_OUTPUT_DISPLAY_COLUMN_ADDRESS = {
@@ -276,23 +290,23 @@ TREEVIEW_OUTPUT_DISPLAY_COLUMN_RETAIL_CATEGORY = {
     'width' : 175,
     'anchor' : E,
 }
-PRIMARY_FRAME_GRID_ROW_WEIGHT = {
-    0 : 0,
-    1 : 0,
-    2 : 0,
-    3 : 0,
-    4 : 0,
-    5 : 0,
-    6 : 1,
-} # key is row index; value is grid weight
-PRIMARY_FRAME_GRID_COLUMN_WEIGHT = {
-    0 : 0,
-    1 : 0,
-    2 : 0,
-    3 : 0,
-    4 : 1,
-    5 : 1,
-}  # key is column index; value is grid weight
+STYLE_BUTTON_SEARCH = {
+    'style' : 'search.TButton',
+    'font' : ('Arial', 16),
+}
+STYLE_LABEL_MESSAGES = {
+    'style' : 'messages.TLabel',
+    'font' : ('Arial', 10, 'bold'),
+}
+STYLE_LABEL_INSTRUCTIONS = {
+    'style' : 'instructions.TLabel',
+    'font' : ('Arial', 10),
+}
+STYLE_TREEVIEW_OUTPUT = {
+    'style' : 'output.Treeview',
+    'font' : ('Arial', 8),
+}
+
 HEADER_LIST_NEARBY_STORE = ['Store Name', 'Distance', 'Address', 'Retail Category',]
 DISTANCE_UNIT_DISPLAY = 'km'
 DISTANCE_UNIT_SCROLLBAR = 'km'
@@ -339,7 +353,7 @@ class GraphicalUserInterface:
         __set_user_interface_state_ready
         __update_user_input
     '''
-    def __init__(self, user_input):
+    def __init__(self):
         '''
         Method Name: __init__
             Constructor for 'GraphicalUserInterface'
@@ -354,7 +368,7 @@ class GraphicalUserInterface:
             None
         '''
         self.name = 'Graphical User Interface'
-        self.user_input = user_input
+        self.user_input = UserInput()
 
         self.list_transit_stations = [] # Placeholder empty list, list of 'Transit Station' objects from url
         self.list_storefronts = [] # Placeholder empty list, list of 'Storefront' objects from url
@@ -412,8 +426,8 @@ class GraphicalUserInterface:
 
         self.master = Tk()  # Create tk object - root level
         self.master.title(APPLICATION_NAME)
+        self.master.resizable(False, False)
 
-        self.__set_grid_configurations()
         self.__configure_style()
         self.__create_primary_frames()
 
@@ -454,7 +468,8 @@ class GraphicalUserInterface:
 
         else:
             self.__display_list_nearby_stores()
-            current_map_view = VisualizationView(self.canvas_output_display, self.user_input, self.list_local_area_boundaries, self.list_nearby_stores)
+            current_map_view = VisualizationView(self)
+            current_map_view.display_legend()
             current_map_view.display_map_nearby_stores()
             self.label_message_display.config(**LABEL_LOADING_MESSAGE_COMPLETE_NORMAL)
 
@@ -494,9 +509,10 @@ class GraphicalUserInterface:
 
     def __configure_style(self):
         self.style = ttk.Style()
-        self.style.configure('search.TButton', font = ('Arial', 16))
-        self.style.configure('message.TLabel', font = ('Arial', 10))
-        self.style.configure('output.Treeview', font = ('Arial', 8))
+        self.style.configure(**STYLE_BUTTON_SEARCH)
+        self.style.configure(**STYLE_LABEL_MESSAGES)
+        self.style.configure(**STYLE_LABEL_INSTRUCTIONS)
+        self.style.configure(**STYLE_TREEVIEW_OUTPUT)
 
 
     def __create_primary_frames(self):
@@ -600,7 +616,7 @@ class GraphicalUserInterface:
 
 
     def __populate_frame_search_button_control(self):
-        self.button_search = ttk.Button(self.frame_search_button_control, **BUTTON_SEARCH, style='search.TButton', command=self.start_search_button_event)
+        self.button_search = ttk.Button(self.frame_search_button_control, **BUTTON_SEARCH, style = STYLE_BUTTON_SEARCH['style'], command = self.start_search_button_event)
         self.button_search.pack(**DEFAULT_PACK_CONFIG)
 
 
@@ -620,12 +636,12 @@ class GraphicalUserInterface:
 
 
     def __populate_labelframe_instructions(self):
-        self.label_instructions = ttk.Label(self.labelframe_instructions, **LABEL_INSTRUCTIONS, style = 'message.TLabel')
+        self.label_instructions = ttk.Label(self.labelframe_instructions, **LABEL_INSTRUCTIONS, style = STYLE_LABEL_INSTRUCTIONS['style'])
         self.label_instructions.pack(**DEFAULT_PACK_CONFIG)
 
 
     def __populate_labelframe_message_display(self):
-        self.label_message_display = ttk.Label(self.labelframe_message_display, **LABEL_LOADING_MESSAGE_START, style = 'message.TLabel')
+        self.label_message_display = ttk.Label(self.labelframe_message_display, **LABEL_LOADING_MESSAGE_START, style = STYLE_LABEL_MESSAGES['style'])
         self.label_message_display.pack(**DEFAULT_PACK_CONFIG)
 
 
@@ -633,18 +649,21 @@ class GraphicalUserInterface:
 
         self.notebook_output_display = ttk.Notebook(self.labelframe_output_display, **NOTEBOOK_OUTPUT_DISPLAY)
 
+        # Build two separate tabs within labelframe_output_display
         self.tab_canvas = ttk.Frame(self.notebook_output_display, **FRAME_NOTEBOOK_MAP_VIEW)
         self.tab_treeview = ttk.Frame(self.notebook_output_display, **FRAME_NOTEBOOK_LIST_VIEW)
         self.notebook_output_display.add(self.tab_canvas, **TAB_NOTEBOOK_TAB_MAP_VIEW)
         self.notebook_output_display.add(self.tab_treeview, **TAB_NOTEBOOK_TAB_LIST_VIEW)
         self.notebook_output_display.pack(**DEFAULT_PACK_CONFIG)
 
-        # Build Visualization - Canvas
+        # Tab 1 -- Build Visualization - Canvas (visualization) with legend
         self.canvas_output_display = Canvas(self.tab_canvas, **CANVAS_OUTPUT_DISPLAY)
-        self.canvas_output_display.pack(**DEFAULT_PACK_CONFIG)
+        self.labelframe_output_legend = ttk.Labelframe(self.tab_canvas, **LABELFRAME_OUTPUT_LEGEND)
+        self.canvas_output_display.grid(**CANVAS_OUT_DISPLAY_GRID, **DEFAULT_GRID_CONFIG)
+        self.labelframe_output_legend.grid(**LABELFRAME_OUTPUT_LEGEND_GRID, **DEFAULT_GRID_CONFIG)
 
-        # Build List View - Treeview
-        self.treeview_output_display = ttk.Treeview(self.tab_treeview, **TREEVIEW_OUTPUT_DISPLAY, style = 'output.Treeview')
+        # Tab 2 -- Build List View - Treeview with scrollbar
+        self.treeview_output_display = ttk.Treeview(self.tab_treeview, **TREEVIEW_OUTPUT_DISPLAY, style = STYLE_TREEVIEW_OUTPUT['style'])
         self.scrollbar_output_display = ttk.Scrollbar(self.tab_treeview, **SCROLLBAR_OUTPUT_DISPLAY_DISPLAY, command = self.treeview_output_display.yview)
 
         self.treeview_output_display.grid(**TREEVIEW_OUTPUT_DISPLAY_GRID, **DEFAULT_GRID_CONFIG)
@@ -709,14 +728,6 @@ class GraphicalUserInterface:
     def __refresh_labelframe_output_display(self):
         self.notebook_output_display.destroy()
         self.__populate_labelframe_output_display()
-
-
-    def __set_grid_configurations(self):
-        for row, grid_weight in PRIMARY_FRAME_GRID_ROW_WEIGHT.items():
-            self.master.rowconfigure(row, weight = grid_weight)
-
-        for column, grid_weight in PRIMARY_FRAME_GRID_COLUMN_WEIGHT.items():
-            self.master.columnconfigure(column, weight = grid_weight)
 
 
     def __set_minimum_window_size(self):

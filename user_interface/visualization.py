@@ -10,22 +10,39 @@ This file is used by the following:
 visualization_view
 '''
 
+from tkinter import *
+from tkinter import ttk
+
 
 COORDINATE_COUNT = 2 # Coordinates are represented by 2 values
-CANVAS_MAP_SCALE = 0.80
+DEFAULT_GRID_CONFIG = {
+    'sticky' : 'new',
+    'ipadx' : 2,
+    'ipady' : 2,
+    'padx' : 2,
+    'pady' : 2,
+}
+DEFAULT_PACK_CONFIG = {
+    'fill' : 'both',
+    'ipadx' : 5,
+    'ipadx' : 5,
+    'padx' : 5,
+    'pady' : 5,
+}
+CANVAS_MAP_SCALE = 0.90
 CANVAS_DRAW_MAP = {
-    'outline' : 'LightSkyBlue4',
-    'fill' : 'LightSkyBlue1',
+    'outline' : 'gray20',
+    'fill' : 'gray80',
     'width' : 1,
 }
 CANVAS_LOCAL_AREA_NAME = {
-    'fill' : 'LightSkyBlue4',
-    'font' : ('Arial', 7),
+    'fill' : 'gray30',
+    'font' : ('Arial', 8, 'bold'),
 }
 CANVAS_STORE_MARKER_RADIUS = 2
 CANVAS_STORE_MARKER = {
     'outline' : 'DarkSeaGreen4',
-    'fill' : 'DarkSeaGreen2',
+    'fill' : 'DarkSeaGreen3',
     'width' : 1,
 }
 CANVAS_STATION_MARKER_RADIUS = 4
@@ -39,13 +56,24 @@ CANVAS_SEARCH_MARKER = {
     'fill' : '',
     'width' : 1,
 }
-DEFAULT_PACK_CONFIG = {
-    'fill' : 'both',
-    'ipadx' : 5,
-    'ipadx' : 5,
-    'padx' : 5,
-    'pady' : 5,
+LABEL_LEGEND_LEFT = {
+    'width' : 6,
+    'font' : ('Arial', 8, 'bold'),
 }
+LABEL_LEGEND_RIGHT = {
+    'width' : 45,
+    'font' : ('Arial', 8),
+}
+STATION_MARKER_LEGEND_LEFT = {
+    'text' : '\u2b24', # Unicode for big circle
+    'foreground' : CANVAS_STATION_MARKER['fill'],
+}
+STATION_MARKER_LEGEND_TEXT = 'Transit Station'
+STORE_MARKER_LEGEND_LEFT = {
+    'text' : '\u25cf', # Unicode for circle
+    'foreground' : CANVAS_STORE_MARKER['fill'],
+}
+STORE_MARKER_LEGEND_TEXT = 'Storefront'
 
 
 class VisualizationView:
@@ -62,7 +90,7 @@ class VisualizationView:
         __str__ 
         __eq__
     '''
-    def __init__(self, canvas, user_input, list_local_area_boundaries, list_nearby_stores):
+    def __init__(self, gui):
         '''
         Method Name: __init__
             Constructor for 'VisualizationView'
@@ -84,10 +112,11 @@ class VisualizationView:
             None
         '''
         self.name = 'Visualization View'
-        self.canvas = canvas
-        self.user_input = user_input
-        self.list_local_area_boundaries = list_local_area_boundaries
-        self.list_nearby_stores = list_nearby_stores
+        self.canvas = gui.canvas_output_display
+        self.legend = gui.labelframe_output_legend
+        self.user_input = gui.user_input
+        self.list_local_area_boundaries = gui.list_local_area_boundaries
+        self.list_nearby_stores = gui.list_nearby_stores
 
         self.map_min_x = 0.0
         self.map_max_x = 0.0
@@ -139,6 +168,33 @@ class VisualizationView:
         return self.user_input == other.user_input
 
 
+    def display_map_nearby_stores(self):
+        self.scale = self.__calculate_canvas_scale()
+        self.__draw_all_local_area_boundaries()
+        self.__print_local_area_names()
+        self.__mark_search_radius()
+        self.__mark_nearby_stores()
+        self.__mark_transit_station()
+
+
+    def display_legend(self):
+        i = 0
+        ttk.Label(self.legend, **STATION_MARKER_LEGEND_LEFT, **LABEL_LEGEND_LEFT).grid(row = i, column = 0)
+        ttk.Label(self.legend, text = STATION_MARKER_LEGEND_TEXT, **LABEL_LEGEND_RIGHT).grid(row = i, column = 1)
+
+        i += 1
+        ttk.Label(self.legend, **STORE_MARKER_LEGEND_LEFT, **LABEL_LEGEND_LEFT).grid(row = i, column = 0)
+        ttk.Label(self.legend, text = STORE_MARKER_LEGEND_TEXT, **LABEL_LEGEND_RIGHT).grid(row = i, column = 1)
+
+        for local_area_boundary in self.list_local_area_boundaries:
+            i += 1
+            label_text_left = local_area_boundary.abbreviation
+            label_text_right = local_area_boundary.name
+
+            ttk.Label(self.legend, text = label_text_left, **LABEL_LEGEND_LEFT).grid(row = i, column = 0)
+            ttk.Label(self.legend, text = label_text_right, **LABEL_LEGEND_RIGHT).grid(row = i, column = 1)
+
+
     def __calculate_canvas_scale(self):
         list_all_x_coordinates = []
         list_all_y_coordinates = []
@@ -169,15 +225,6 @@ class VisualizationView:
         map_centroid_y = self.scale * (self.map_min_y + self.map_max_y) / 2
 
         return (map_centroid_x, map_centroid_y)
-
-
-    def display_map_nearby_stores(self):
-        self.scale = self.__calculate_canvas_scale()
-        self.__draw_all_local_area_boundaries()
-        self.__print_local_area_names()
-        self.__mark_search_radius()
-        self.__mark_nearby_stores()
-        self.__mark_transit_station()
 
 
     def __draw_all_local_area_boundaries(self):

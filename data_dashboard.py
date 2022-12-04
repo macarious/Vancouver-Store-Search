@@ -35,7 +35,6 @@ re - cleans data, removes/replaces unwanted characters in data
 json - extracts data from a json-encoded string (coordinates data)
 '''
 # Classes
-from model.user_input import UserInput
 from user_interface.graphical_user_interface import GraphicalUserInterface
 
 
@@ -48,8 +47,7 @@ def main():
         # event-driven. Dataset downloading/processing related functions are
         # called during the construction of the GUI. Analysis related functions
         # are called within user-triggered events.
-        user_input = UserInput()
-        user_interface = GraphicalUserInterface(user_input)
+        user_interface = GraphicalUserInterface()
         user_interface.build_application_window()
         user_interface.start_user_interaction()
 
