@@ -234,7 +234,7 @@ TAB_NOTEBOOK_TAB_LIST_VIEW = {
     'sticky' : W,
 }
 CANVAS_OUTPUT_DISPLAY = {
-    'width' : 485,
+    'width' : 465,
     'height' : 450,
 }
 CANVAS_OUT_DISPLAY_GRID = {
@@ -243,7 +243,7 @@ CANVAS_OUT_DISPLAY_GRID = {
 }
 LABELFRAME_OUTPUT_LEGEND = {
     'text' : 'Legend',
-    'width' : 160,
+    'width' : 180,
     'height' : 450,
     'relief' : SOLID,
 }
