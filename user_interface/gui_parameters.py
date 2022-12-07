@@ -164,6 +164,9 @@ LABEL_LOADING_MESSAGE_COMPLETE_NO_RESULTS = {
     'text' : 'The program has finished searching.\nNo results found. Please adjust the search radius.',
     'foreground' : 'red',
 }
+LABEL_LOADING_MESSAGE_ERROR = {
+    'foreground' : 'red',
+}
 COMBOBOX_STATION_CONTROL = {
     'state' : 'readonly',
 }

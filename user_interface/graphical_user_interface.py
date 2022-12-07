@@ -148,7 +148,7 @@ class GraphicalUserInterface:
     def start_user_interaction(self):
         '''
         Method Name: start_user_interaction
-            Commences the graphical user interface. This method acts as the controller.
+            Commences the graphical user interface. This method acts as the 'Controller'.
         
         Parameters:
             Nothing
@@ -160,15 +160,19 @@ class GraphicalUserInterface:
             None
         '''
         self.build_application_window()
+        try:
+            # Download, clean, and convert dataset into objects
+            self.create_list_of_objects_from_url()
 
-        # Download, clean, and convert dataset into objects
-        self.create_list_of_objects_from_url()
+            self.__populate_menus()
+            self.__set_user_interface_state_ready()
 
-        self.__populate_menus()
-        self.__set_user_interface_state_ready()
+            # Interact with the model and the view
+            self.master.mainloop()
 
-        # Interact with the model and the view
-        self.master.mainloop()
+        except Exception as e:
+            self.label_message_display.config(LABEL_LOADING_MESSAGE_ERROR, text = e)
+            self.master.mainloop()
 
 
     def build_application_window(self):

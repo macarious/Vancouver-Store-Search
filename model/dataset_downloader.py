@@ -46,30 +46,21 @@ def read_url(url):
         raise TypeError("TypeError: The parameter 'url' for function 'read_url' must be a string")
 
     # 'Try-except' block is only used to catch all connection-related errors
-    connection_attempt_count = 0
-    connection_ok = False
-    while not connection_ok:
 
-        try:
-            response = requests.get(url, timeout = TIMEOUT)
-            connection_attempt_count += 1
+    try:
+        response = requests.get(url, timeout = TIMEOUT)
 
-        except requests.ConnectionError:
-            if connection_attempt_count > CONNECTION_MAX_ATTEMPT:
-                raise ConnectionError(f"Error: Cannot connect to URL due to a network problem after {connection_attempt_count} attempts")
+    except requests.HTTPError:
+        raise requests.HTTPError("Error: A HTTP error has occured; URL may be invalid")
 
-        except requests.HTTPError:
-            raise requests.HTTPError("Error: A HTTP error has occured; URL may be invalid")
+    except requests.ConnectionError:
+        raise ConnectionError("Error: Cannot connect to URL due to a network problem")
 
-        except requests.TooManyRedirects:
-            raise requests.TooManyRedirects("Error: There are too many redirects while attempting to connect to URL")
+    except requests.TooManyRedirects:
+        raise requests.TooManyRedirects("Error: There are too many redirects while attempting to connect to URL")
 
-        except requests.Timeout:
-            if connection_attempt_count > CONNECTION_MAX_ATTEMPT:
-                raise TimeoutError(f"Error: Connection has timed out while attempting to connect to URL after {connection_attempt_count} attempts")
-        
-        else:
-            connection_ok = True
+    except requests.Timeout:
+            raise TimeoutError(f"Error: Connection has timed out while attempting to connect to URL")
 
     text = response.text
 
