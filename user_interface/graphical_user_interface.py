@@ -6,314 +6,34 @@ Data Dashboard Final Project
 
 Class Name -- GraphicalUserInterface, see docstring below
 
+This file also acts as the controller because this program
+is event-driven. Dataset downloading, analysis, and various user
+display are executed after the application window has been built,
+and/or after the mainloop method has been called.
+
 These functions are used by the driver file:
 data_dashboard.py
 '''
 # Modules and Functions
-from dataset_parameters import LOCAL_AREA_BOUNDARY_DESCRIPTOR
-from dataset_parameters import TRANSIT_STATIONS_DATASET_DESCRIPTOR
-from dataset_parameters import STOREFRONTS_DATASET_DESCRIPTOR
-from local_area_boundary_factory import create_local_area_boundary_list_from_url
-from nearby_stores_finder import find_nearby_stores
-from storefront_factory import create_storefront_list_from_url
-from transit_station_factory import create_transit_station_list_from_url
+from model.local_area_boundary_factory import create_local_area_boundary_list_from_url
+from model.nearby_stores_finder import find_nearby_stores
+from model.storefront_factory import create_storefront_list_from_url
+from model.transit_station_factory import create_transit_station_list_from_url
 
 # Classes
-from model.user_input import UserInput
-from user_interface.visualization import VisualizationView
+from model_class.dataset_descriptor import DatasetDescriptor
+from model_class.user_input import UserInput
+from user_interface.visualization_view import VisualizationView
 
 # Downloaded Libraries
 from tkinter import *
 from tkinter import ttk
 
-
-APPLICATION_NAME = 'Store Finder Dashboard'
-DEFAULT_GRID_CONFIG = {
-    'sticky' : NSEW,
-    'ipadx' : 2,
-    'ipady' : 2,
-    'padx' : 2,
-    'pady' : 2,
-}
-DEFAULT_PACK_CONFIG = {
-    'fill' : BOTH,
-    'ipadx' : 5,
-    'ipadx' : 5,
-    'padx' : 5,
-    'pady' : 5,
-}
-FRAME_TITLE = {'width': 0, 'height': 24, 'relief': SOLID}
-FRAME_TITLE_GRID = {
-    'column': 0,
-    'row': 0,
-    'columnspan' : 6,
-    'rowspan' : 1,
-}
-LABELFRAME_MESSAGE_DISPLAY = {
-    'text' : 'Status/Messages',
-    'width' : 480,
-    'height' : 120,
-    'relief' : SOLID,
-}
-LABELFRAME_MESSAGE_DISPLAY_GRID = {
-    'column' : 0,
-    'row' : 1,
-    'columnspan' : 4,
-    'rowspan' : 1,
-}
-LABELFRAME_INSTRUCTIONS = {
-    'text' : 'Instructions',
-    'width' : 480,
-    'height' : 120,
-    'relief' : SOLID
-}
-LABELFRAME_INSTRUCTIONS_GRID = {
-    'column' : 0,
-    'row' : 2,
-    'columnspan' : 4,
-    'rowspan' : 1,
-}
-LABELFRAME_STATION_CONTROL = {
-    'text' : 'Transit Stations',
-    'width' : 200,
-    'height' : 80,
-    'relief' : SOLID
-}
-LABELFRAME_STATION_CONTROL_GRID = {
-    'column' : 0,
-    'row' : 3,
-    'columnspan' : 2,
-    'rowspan' : 1,
-}
-LABELFRAME_CATEGORY_CONTROL = {
-    'text' : 'Store Categories',
-    'width' : 200,
-    'height' : 80,
-    'relief' : SOLID
-}
-LABELFRAME_CATEGORY_CONTROL_GRID = {
-    'column' : 2,
-    'row' : 3,
-    'columnspan' : 2,
-    'rowspan' : 1,
-}
-LABELFRAME_SEARCH_RADIUS_CONTROL = {
-    'text' : 'Search Radius',
-    'width' : 360,
-    'height' : 40,
-    'relief' : SOLID
-}
-LABELFRAME_SEARCH_RADIUS_GRID = {
-    'column': 0,
-    'row': 4,
-    'columnspan': 4,
-    'rowspan': 1,
-}
-LABELFRAME_DISPLAY_COUNT_CONTROL = {
-    'text' : 'Max Item to Display',
-    'width' : 360,
-    'height' : 40,
-    'relief' : SOLID
-}
-LABELFRAME_DISPLAY_COUNT_GRID = {
-    'column': 0,
-    'row': 5,
-    'columnspan': 4,
-    'rowspan': 1,
-}
-FRAME_SEARCH_BUTTON_CONTROL = {
-    'width' : 400,
-    'height' : 40,
-    'relief' : FLAT
-}
-FRAME_SEARCH_BUTTON_CONTROL_GRID = {
-    'column': 1,
-    'row': 6,
-    'columnspan': 2,
-    'rowspan': 1,
-}
-LABELFRAME_OUTPUT_DISPLAY = {
-    'text' : 'Output',
-    'width' : 640,
-    'height' : 460,
-    'relief' : SOLID
-}
-LABELFRAME_OUTPUT_DISPLAY_GRID = {
-    'column': 4,
-    'row': 1,
-    'columnspan': 2,
-    'rowspan': 6,
-}
-LABEL_TITLE = {
-    'text' : "City of Vancouver - Store Finder Dashboard\nCS5001 - Final Project",
-    'font': ('Arial', 16, "bold")
-}
-LABEL_AUTHOR = {
-    'text' : "HUI, Macarious Kin Fung",
-    'font' : ('Arial', 12)
-}
-LABEL_INSTRUCTIONS = {
-    'text': "This program searches for nearby stores around a Transit Station in the City of Vancouver:\n\n"
-    "1. Select a Transit Station.\n"
-    "2. Select a store category to filter.\n"
-    "3. Specify a search radius in metres.\n"
-    "4. Specify the maximum number of stores to display.\n",
-    'wraplength': 400,
-}
-LABEL_LOADING_MESSAGE_START = {
-    'text' : 'The program is currently retrieving and processing data.\nPlease wait...',
-    'wraplength' : 400,
-    'foreground' : 'red',
-}
-LABEL_LOADING_MESSAGE_READY = {
-    'text' : 'The program has finished retrieving and processing the data.\nPlease continue...',
-    'foreground' : 'sea green',
-}
-LABEL_LOADING_MESSAGE_COMPLETE_NORMAL = {
-    'text' : 'The program has finished searching.\nPlease select between Visualization or List View',
-    'foreground' : 'sea green',
-}
-LABEL_LOADING_MESSAGE_COMPLETE_NO_RESULTS = {
-    'text' : 'The program has finished searching.\nNo results found; please adjust the search radius.',
-    'foreground' : 'red',
-}
-COMBOBOX_STATION_CONTROL = {
-    'state' : 'readonly',
-}
-COMBOBOX_CATEGORY_CONTROL = {
-    'state' : 'readonly',
-}
-SCALE_SEARCH_RADIUS = {
-    'orient' : 'horizontal',
-    'from_' : 0,
-    'to' : 5000,
-    'state' : 'disabled',
-    'length' : 300,
-}
-LABEL_SEARCH_RADIUS = {
-    'text' : 'Search All',
-    'font' : ('Arial', 10),
-    'width' : 10,
-}
-SCALE_DISPLAY_COUNT = {
-    'orient' : 'horizontal',
-    'from_' : 50,
-    'to' : 1000,
-    'state' : 'disabled',
-    'length' : 300,
-}
-LABEL_DISPLAY_COUNT = {
-    'text' : 50,
-    'font' : ('Arial', 10),
-    'width' : 10,
-}
-BUTTON_SEARCH = {
-    'text' : 'SEARCH',
-    'state' : 'disabled',
-}
-NOTEBOOK_OUTPUT_DISPLAY = {
-    'width' : 650,
-    'height' : 460,
-}
-FRAME_NOTEBOOK_MAP_VIEW = {
-    'width' : 700,
-    'height' : 460,
-    'relief' : FLAT,
-}
-FRAME_NOTEBOOK_LIST_VIEW = {
-    'width' : 650,
-    'height' : 460,
-    'relief' : SOLID,
-}
-TAB_NOTEBOOK_TAB_MAP_VIEW = {
-    'text' : 'Visualization',
-    'sticky' : W,
-}
-TAB_NOTEBOOK_TAB_LIST_VIEW = {
-    'text' : 'List View',
-    'sticky' : W,
-}
-CANVAS_OUTPUT_DISPLAY = {
-    'width' : 465,
-    'height' : 450,
-}
-CANVAS_OUT_DISPLAY_GRID = {
-    'row' : 0,
-    'column' : 0,
-}
-LABELFRAME_OUTPUT_LEGEND = {
-    'text' : 'Legend',
-    'width' : 180,
-    'height' : 450,
-    'relief' : SOLID,
-}
-LABELFRAME_OUTPUT_LEGEND_GRID = {
-    'row' : 0,
-    'column' : 1,
-}
-TREEVIEW_OUTPUT_DISPLAY = {
-    'height' : 20
-}
-TREEVIEW_OUTPUT_DISPLAY_GRID = {
-    'row' : 0,
-    'column' : 0,
-}
-SCROLLBAR_OUTPUT_DISPLAY_DISPLAY = {
-    'orient' : VERTICAL
-}
-SCROLLBAR_OUTPUT_DISPLAY_GRID = {
-    'row' : 0,
-    'column' : 1,
-}
-TREEVIEW_OUTPUT_DISPLAY_COLUMN_INDEX = {
-    'column' : '#0', # Default name for root column
-    'width' : 50,
-    'anchor' : E,
-}
-TREEVIEW_OUTPUT_DISPLAY_COLUMN_STORE_NAME = {
-    'column' : 'Store Name',
-    'width' : 200,
-    'anchor' : E,
-}
-TREEVIEW_OUTPUT_DISPLAY_COLUMN_DISTANCE = {
-    'column' : 'Distance',
-    'width' : 60,
-    'anchor' : E,
-}
-TREEVIEW_OUTPUT_DISPLAY_COLUMN_ADDRESS = {
-    'column' : 'Address',
-    'width' : 145,
-    'anchor' : E,
-}
-TREEVIEW_OUTPUT_DISPLAY_COLUMN_RETAIL_CATEGORY = {
-    'column' : 'Retail Category',
-    'width' : 175,
-    'anchor' : E,
-}
-STYLE_BUTTON_SEARCH = {
-    'style' : 'search.TButton',
-    'font' : ('Arial', 16),
-}
-STYLE_LABEL_MESSAGES = {
-    'style' : 'messages.TLabel',
-    'font' : ('Arial', 10, 'bold'),
-}
-STYLE_LABEL_INSTRUCTIONS = {
-    'style' : 'instructions.TLabel',
-    'font' : ('Arial', 10),
-}
-STYLE_TREEVIEW_OUTPUT = {
-    'style' : 'output.Treeview',
-    'font' : ('Arial', 8),
-}
-
-HEADER_LIST_NEARBY_STORE = ['Store Name', 'Distance', 'Address', 'Retail Category',]
-DISTANCE_UNIT_DISPLAY = 'km'
-DISTANCE_UNIT_SCROLLBAR = 'km'
-METRE_TO_KILOMETRE_CONVERSTION = 1 / 1000
-DISTANCE_UNIT_FORMAT = '{:.1f}'
-ADDITIONAL_STORE_CATEGORY = 'All'
-UNUSED_STORE_CATEGORY = ['Vacant', 'Vacant UC', 'Unknown']
+# Parameters / Constants
+from resources.dataset_parameters import LOCAL_AREA_BOUNDARY
+from resources.dataset_parameters import TRANSIT_STATIONS_DATASET
+from resources.dataset_parameters import STOREFRONTS_DATASET
+from user_interface.gui_parameters import *
 
 
 class GraphicalUserInterface:
@@ -326,12 +46,14 @@ class GraphicalUserInterface:
         __init__ (Constructor)
         __str__
         __eq__
+        start_user_interface -- this method acts as the controller
         build_application_window
         create_list_of_objects_from_url
         start_search_button_event
-        start_user_interface
         update_label_search_radius_event
         update_label_display_count_event
+
+        The following methods are private:
         __configure_style
         __create_primary_frames
         __display_list_nearby_stores
@@ -368,14 +90,15 @@ class GraphicalUserInterface:
             None
         '''
         self.name = 'Graphical User Interface'
-        self.user_input = UserInput()
+        self.user_input = None # Placeholder for a 'UserInput' object
 
         self.list_transit_stations = [] # Placeholder empty list, list of 'Transit Station' objects from url
         self.list_storefronts = [] # Placeholder empty list, list of 'Storefront' objects from url
+        self.list_local_area_boundaries = []  # Placeholder empty list, for output display in GUI
+        
         self.list_station_names = [] # Placeholder empty list, for menu display in GUI
         self.list_store_categories = [] # Placeholder empty list, for menu display in GUI
         self.list_nearby_stores = []  # Placeholder empty list, for output display in GUI
-        self.list_local_area_boundaries = []  # Placeholder empty list, for output display in GUI
 
 
     def __str__(self):
@@ -422,8 +145,46 @@ class GraphicalUserInterface:
         return (self.name == other.name)
 
 
-    def build_application_window(self):
+    def start_user_interaction(self):
+        '''
+        Method Name: start_user_interaction
+            Commences the graphical user interface. This method acts as the controller.
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
 
+        Returns:
+            None
+        '''
+        self.build_application_window()
+
+        # Download, clean, and convert dataset into objects
+        self.create_list_of_objects_from_url()
+
+        self.__populate_menus()
+        self.__set_user_interface_state_ready()
+
+        # Interact with the model and the view
+        self.master.mainloop()
+
+
+    def build_application_window(self):
+        '''
+        Method Name: build_application_window
+            Build the main application window by creating all frames/widgets.
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+        
+        Returns:
+            None
+        '''
         self.master = Tk()  # Create tk object - root level
         self.master.title(APPLICATION_NAME)
         self.master.resizable(False, False)
@@ -444,18 +205,43 @@ class GraphicalUserInterface:
 
         self.__set_minimum_window_size()
 
-        # Download and process data
-        self.create_list_of_objects_from_url()
-        self.__populate_menus()
-
 
     def create_list_of_objects_from_url(self):
-        self.list_transit_stations = create_transit_station_list_from_url(TRANSIT_STATIONS_DATASET_DESCRIPTOR)
-        self.list_storefronts = create_storefront_list_from_url(STOREFRONTS_DATASET_DESCRIPTOR)
-        self.list_local_area_boundaries = create_local_area_boundary_list_from_url(LOCAL_AREA_BOUNDARY_DESCRIPTOR)
+        '''
+        Method Name: create_list_of_objects_from_url
+            Creates list of objects for each of the three dataset from online dataset:
+            (1) 'TransitStation', (2) 'Storefronts', (3) 'LocalAreaBoundary'
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
+        self.list_transit_stations = create_transit_station_list_from_url(DatasetDescriptor(**TRANSIT_STATIONS_DATASET))
+        self.list_storefronts = create_storefront_list_from_url(DatasetDescriptor(**STOREFRONTS_DATASET))
+        self.list_local_area_boundaries = create_local_area_boundary_list_from_url(DatasetDescriptor(**LOCAL_AREA_BOUNDARY))
 
 
     def start_search_button_event(self):
+        '''
+        Method Name: start_search_button_event
+            Event triggers when the search button is clicked. Refreshes the current map
+            view and list view. Finds a list of nearby stores according to the most recent
+            user input. Displays the results in a map view and a list view.
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         self.__update_user_input()
 
         # Analysis is done in the 'nearbystores_finder' module
@@ -474,27 +260,21 @@ class GraphicalUserInterface:
             self.label_message_display.config(**LABEL_LOADING_MESSAGE_COMPLETE_NORMAL)
 
 
-    def start_user_interaction(self):
+    def update_label_search_radius_event(self, event):
         '''
-        Method Name: start_user_interaction
-            Commences interaction between graphical and user. Displays menus and prompts
-            users for input. The inputs in the graphical are stored as attributes in the
-            'graphicalUserInterface' object.
+        Method Name: update_label_search_radius_event
+            Event triggers when user adjust the search radius slider. Updates the text label
+            adjacent to the search radius slider.
         
         Parameters:
-            Nothing
+            event -- event, represents an event triggered in the mainloop
         
         Raises:
             Nothing
 
         Returns:
-            Nothing
+            None
         '''
-        self.__set_user_interface_state_ready()
-        self.master.mainloop()
-
-
-    def update_label_search_radius_event(self, event):
         label_text = LABEL_SEARCH_RADIUS['text']
         search_radius = self.search_radius_variable.get() * METRE_TO_KILOMETRE_CONVERSTION
         if search_radius != 0:
@@ -503,11 +283,38 @@ class GraphicalUserInterface:
 
 
     def update_label_display_count_event(self, event):
+        '''
+        Method Name: update_label_display_count_event
+            Event triggers when user adjust the display count slider. Updates the text label
+            adjacent to the display count slider.
+        
+        Parameters:
+            event -- event, represents an event triggered in the mainloop
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         label_text = self.display_count_variable.get()
         self.label_display_count.config(text = label_text)
 
 
     def __configure_style(self):
+        '''
+        Method Name: __configure_style
+            Configures the style of the various widgets in the program.
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         self.style = ttk.Style()
         self.style.configure(**STYLE_BUTTON_SEARCH)
         self.style.configure(**STYLE_LABEL_MESSAGES)
@@ -516,6 +323,19 @@ class GraphicalUserInterface:
 
 
     def __create_primary_frames(self):
+        '''
+        Method Name: __create_primary_frames
+            Creates the primary, top-level frames in the application window.
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         self.frame_title = ttk.Frame(self.master, **FRAME_TITLE)
         self.labelframe_message_display = ttk.Labelframe(self.master, **LABELFRAME_MESSAGE_DISPLAY)
         self.labelframe_instructions = ttk.Labelframe(self.master, **LABELFRAME_INSTRUCTIONS)
@@ -538,6 +358,19 @@ class GraphicalUserInterface:
 
 
     def __display_list_nearby_stores(self):
+        '''
+        Method Name: __display_list_nearby_stores
+            Creates the primary, top-level frames in the application window.
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         display_count = min(len(self.list_nearby_stores), self.user_input.max_display_count)
         for i in range(display_count):
             self.treeview_output_display.insert('', index = i, iid = i, text = i + 1) # Insert new row with index starting at 1 (ex. column ID = 0 -> text = 1)
@@ -592,6 +425,7 @@ class GraphicalUserInterface:
             ValueError -- raises if attribute 'list_storefront' is an empty list
         
         Returns:
+            None
         '''
         if type(self.list_storefronts) is not list:
             raise TypeError("TypeError: The attribute 'list_storefronts' must be a list")
@@ -609,6 +443,19 @@ class GraphicalUserInterface:
 
 
     def __populate_frame_title(self):
+        '''
+        Method Name: __populate_frame_title
+            Populate the 'title' frame with a label'
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         self.label_title = ttk.Label(self.frame_title, **LABEL_TITLE)
         self.label_author = ttk.Label(self.frame_title, **LABEL_AUTHOR)
         self.label_title.pack(**DEFAULT_PACK_CONFIG)
@@ -616,17 +463,56 @@ class GraphicalUserInterface:
 
 
     def __populate_frame_search_button_control(self):
+        '''
+        Method Name: __populate_frame_search_button_control
+            Populate the 'search button contro' frame with a button
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         self.button_search = ttk.Button(self.frame_search_button_control, **BUTTON_SEARCH, style = STYLE_BUTTON_SEARCH['style'], command = self.start_search_button_event)
         self.button_search.pack(**DEFAULT_PACK_CONFIG)
 
 
     def __populate_labelframe_category_control(self):
+        '''
+        Method Name: __populate_labelframe_category_control
+            Populate the 'category control' label frame with a combobox (drop-down menu)
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         self.store_category_variable = StringVar()
         self.combobox_category_control = ttk.Combobox(self.labelframe_category_control, textvariable = self.store_category_variable, **COMBOBOX_CATEGORY_CONTROL)
         self.combobox_category_control.pack(**DEFAULT_PACK_CONFIG)
 
 
     def __populate_labelframe_display_count_control(self):
+        '''
+        Method Name: __populate_labelframe_display_count_control
+            Populate the 'display count control' label frame with a scale (slider) and a label
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         self.display_count_variable = IntVar()
         self.display_count_variable.set(SCALE_DISPLAY_COUNT['from_'])
         self.scale_display_count = ttk.Scale(self.labelframe_display_count_control, variable = self.display_count_variable, **SCALE_DISPLAY_COUNT, command = self.update_label_display_count_event)
@@ -636,17 +522,58 @@ class GraphicalUserInterface:
 
 
     def __populate_labelframe_instructions(self):
+        '''
+        Method Name: __populate_labelframe_instructions
+            Populate the 'instructions' label frame with a label
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         self.label_instructions = ttk.Label(self.labelframe_instructions, **LABEL_INSTRUCTIONS, style = STYLE_LABEL_INSTRUCTIONS['style'])
         self.label_instructions.pack(**DEFAULT_PACK_CONFIG)
 
 
     def __populate_labelframe_message_display(self):
+        '''
+        Method Name: __populate_labelframe_message_display
+            Populate the 'message display' label frame with a label
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         self.label_message_display = ttk.Label(self.labelframe_message_display, **LABEL_LOADING_MESSAGE_START, style = STYLE_LABEL_MESSAGES['style'])
         self.label_message_display.pack(**DEFAULT_PACK_CONFIG)
 
 
     def __populate_labelframe_output_display(self):
+        '''
+        Method Name: __populate_labelframe_output_display
+            Populate the 'output display' label frame with a notebook. The notebook contains
+            two tabs:
+                (1) Map View -- canvas and a label frame
+                (2) List View -- treeview and a scroll bar
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
 
+        Returns:
+            None
+        '''
         self.notebook_output_display = ttk.Notebook(self.labelframe_output_display, **NOTEBOOK_OUTPUT_DISPLAY)
 
         # Build two separate tabs within labelframe_output_display
@@ -656,15 +583,15 @@ class GraphicalUserInterface:
         self.notebook_output_display.add(self.tab_treeview, **TAB_NOTEBOOK_TAB_LIST_VIEW)
         self.notebook_output_display.pack(**DEFAULT_PACK_CONFIG)
 
-        # Tab 1 -- Build Visualization - Canvas (visualization) with legend
+        # Tab 1 -- Build map view (visualization) - Canvas (map view) with legend
         self.canvas_output_display = Canvas(self.tab_canvas, **CANVAS_OUTPUT_DISPLAY)
         self.labelframe_output_legend = ttk.Labelframe(self.tab_canvas, **LABELFRAME_OUTPUT_LEGEND)
         self.canvas_output_display.grid(**CANVAS_OUT_DISPLAY_GRID, **DEFAULT_GRID_CONFIG)
         self.labelframe_output_legend.grid(**LABELFRAME_OUTPUT_LEGEND_GRID, **DEFAULT_GRID_CONFIG)
 
-        # Tab 2 -- Build List View - Treeview with scrollbar
+        # Tab 2 -- Build list view - Treeview with scrollbar
         self.treeview_output_display = ttk.Treeview(self.tab_treeview, **TREEVIEW_OUTPUT_DISPLAY, style = STYLE_TREEVIEW_OUTPUT['style'])
-        self.scrollbar_output_display = ttk.Scrollbar(self.tab_treeview, **SCROLLBAR_OUTPUT_DISPLAY_DISPLAY, command = self.treeview_output_display.yview)
+        self.scrollbar_output_display = ttk.Scrollbar(self.tab_treeview, **SCROLLBAR_OUTPUT_DISPLAY, command = self.treeview_output_display.yview)
 
         self.treeview_output_display.grid(**TREEVIEW_OUTPUT_DISPLAY_GRID, **DEFAULT_GRID_CONFIG)
         self.scrollbar_output_display.grid(**SCROLLBAR_OUTPUT_DISPLAY_GRID, **DEFAULT_GRID_CONFIG)
@@ -683,6 +610,19 @@ class GraphicalUserInterface:
 
 
     def __populate_labelframe_search_radius_control(self):
+        '''
+        Method Name: __populate_labelframe_search_radius_control
+            Populate the 'search radius control' label frame with a scale (slider) and a label
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         self.search_radius_variable = DoubleVar()
         self.search_radius_variable.set(SCALE_SEARCH_RADIUS['from_'])
         self.scale_search_radius = ttk.Scale(self.labelframe_search_radius_control, variable = self.search_radius_variable, **SCALE_SEARCH_RADIUS, command = self.update_label_search_radius_event)
@@ -692,6 +632,19 @@ class GraphicalUserInterface:
 
 
     def __populate_labelframe_station_control(self):
+        '''
+        Method Name: __populate_flabelframe_station_control
+            Populate the 'station control' label frame with a combobox (drop-down menu)
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         self.transit_station_variable = StringVar()
         self.combobox_station_control = ttk.Combobox(self.labelframe_station_control, textvariable = self.transit_station_variable, **COMBOBOX_STATION_CONTROL)
         self.combobox_station_control.pack(**DEFAULT_PACK_CONFIG)
@@ -715,27 +668,79 @@ class GraphicalUserInterface:
         Returns:
             None
         '''
+        if type(self.list_transit_stations) is not list:
+            raise TypeError("TypeError: The attribute 'list_transit_stations' must be a list")
+
+        if len(self.list_transit_stations) == 0:
+            raise ValueError("ValueError: The attribute 'list_transit_stations' cannot be empty")
+            
+        if type(self.list_storefronts) is not list:
+            raise TypeError("TypeError: The attribute 'list_storefronts' must be a list")
+
+        if len(self.list_storefronts) == 0:
+            raise ValueError("ValueError: The attribute 'list_storefronts' cannot be empty")
+            
         self.__generate_list_station_names()
         self.__generate_list_store_categories()
 
-        self.combobox_station_control.config(values=self.list_station_names)
+        self.combobox_station_control.config(values = self.list_station_names)
         self.combobox_station_control.current(0) # Set first item in list as default
 
-        self.combobox_category_control.config(values=self.list_store_categories)
+        self.combobox_category_control.config(values = self.list_store_categories)
         self.combobox_category_control.current(0) # Set first item in list as default
 
 
     def __refresh_labelframe_output_display(self):
+        '''
+        Method Name: __refresh_labelframe_output_display
+            Refreshes the 'output display' notebook by destroying it and recreating it
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         self.notebook_output_display.destroy()
         self.__populate_labelframe_output_display()
 
 
     def __set_minimum_window_size(self):
+        '''
+        Method Name: __set_minimum_window_size
+            Set the minimim window size to its current size
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         self.master.update() # Update the size of window after frame/widget creating
         self.master.minsize(self.master.winfo_width(), self.master.winfo_height())
 
 
     def __set_user_interface_state_ready(self):
+        '''
+        Method Name: __set_user_interface_state_ready
+            Enable widgets after application has finished downloading the dataset
+            and populating the menus
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
         self.label_message_display.config(**LABEL_LOADING_MESSAGE_READY)
         self.scale_search_radius.config(state = NORMAL)
         self.scale_display_count.config(state = NORMAL)
@@ -743,6 +748,20 @@ class GraphicalUserInterface:
 
 
     def __update_user_input(self):
+        '''
+        Method Name: __update_user_input
+            Create a 'UserInput' object with the current user input
+        
+        Parameters:
+            Nothing
+        
+        Raises:
+            Nothing
+
+        Returns:
+            None
+        '''
+        self.user_input = UserInput()
         for station in self.list_transit_stations:
             if station.station_name == self.transit_station_variable.get():
                 self.user_input.transit_station = station

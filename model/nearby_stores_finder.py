@@ -12,14 +12,14 @@ transit station. The list contains 'NearbyStore' objects. Store category
 and search radius are also used to filter the list of nearby stores.
 
 These functions are used by the driver file:
-data_dashboard.py
+graphical_user_interface.py
 '''
 
 
 COORDINATE_COUNT = 2 # Coordinates are represented by 2 values
 
 
-from model.nearby_store import NearbyStore
+from model_class.nearby_store import NearbyStore
 
 
 VACANT_LABELS = ['Vacant', 'Vacant UC', 'Unknown']
@@ -41,12 +41,13 @@ def find_nearby_stores(input, list_storefront):
         ValueError -- raises if the attribute 'coordinates' of class 'TransitStation' does not contain exactly 2 floats
         TypeError -- raises if the parameter 'list_storefront' is not a list
         ValueError -- raises if the parameter 'list_storefront' is an empty list
+        TypeError -- raises if the parameter 'search-radius' of class 'UserInput' is not a float
     
     Returns:
         list of NearbyStore, list of sorted and filtered 'NearbyStore' objects
     '''
     if type(input.transit_station.station_name) is not str:
-         raise TypeError("TypeError: The attribute 'station_name' from 'TransitStation' object must be a string")
+         raise TypeError("TypeError: The attribute 'station_name' of class 'TransitStation' must be a string")
     
     if type(input.transit_station.coordinates) is not tuple:
         raise TypeError("TypeError: The attribute 'coordinates' of class 'TransitStation' must be a tuple")
@@ -60,6 +61,9 @@ def find_nearby_stores(input, list_storefront):
     if len(list_storefront) == 0:
         raise ValueError("ValueError: The parameter 'list_storefront' must not be empty")
 
+    if type(input.search_radius) is not float:
+        raise TypeError("TypeError: The attribute 'search_radius' of class 'UserInput' must be a float")
+
     list_nearby_stores = []
     filtered_list_storefront = filter_stores_by_category(list_storefront, input.store_category)
     for store in filtered_list_storefront:
@@ -67,7 +71,7 @@ def find_nearby_stores(input, list_storefront):
         list_nearby_stores.append(NearbyStore(store, input.transit_station, distance, input.store_category))
 
     list_nearby_stores = sort_stores_by_distance(list_nearby_stores)
-    list_nearby_stores = remove_duplicated_stores(list_nearby_stores)
+    list_nearby_stores = remove_duplicated_stores(list_nearby_stores) # Remove stores take up multiple storefronts and from multiple registration
     list_nearby_stores = filter_stores_by_search_radius(list_nearby_stores, input.search_radius)
     
     return list_nearby_stores

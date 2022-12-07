@@ -7,7 +7,7 @@ Data Dashboard Final Project
 Class DataExtractor -- see docstring below
 
 This file is used by the following:
-resource.dataset_parameters.py
+graphical_user_interface.py
 '''
 
 class DatasetDescriptor:

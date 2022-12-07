@@ -4,34 +4,30 @@ HUI, Macarious Kin Fung
 
 Data Dashboard Final Project
 
-Module Name -- transit_station_factory
+Module Name -- local_area_boundary
 
-This file contains functions that create 'TransitStation' objects.
+This file contains functions that create 'LocalAreaBoundary' objects.
 
 This file is used by the driver file:
 graphical_user_interface.py
 '''
 
 # Modules
-import dataset_downloader
+import model.dataset_downloader as dataset_downloader
 import json
-import re
 
 
 # Classes
-from model.transit_station import TransitStation
+from model_class.local_area_boundary import LocalAreaBoundary
 
 
-# Regex pattern replace the unnecessary '\n' and '/n' characters with one white space
-NAME_REGEX_SUBSTITUTE_1 = {'pattern' : '([/\\\]n)', 'replacement' : ' '}
-# Regex pattern to provide consistent spacing before and after '-'
-NAME_REGEX_SUBSTITUTE_2 = {'pattern' : '(\s*-\s*)', 'replacement' : ' - '}
+COORDINATES_SEPARATOR = ','
 
 
-def create_transit_station_list_from_url(dataset_descriptor):
+def create_local_area_boundary_list_from_url(dataset_descriptor):
     '''
-    Function Name: create_transit_station_list_from_url
-        Create a list of 'TransitStation' objects from a url containg a text
+    Function Name: create_local_area_boundary_list_from_url
+        Create a list of 'LocalAreaBoundary' objects from a url containg a text
         file with multiple rows, where each row contains data separated by
         delimiters
     
@@ -57,20 +53,20 @@ def create_transit_station_list_from_url(dataset_descriptor):
 
     # First extract header list from 0th row
     header_list = create_header_list(response_text_row[0], dataset_descriptor)
-    transit_station_list = []
+    local_area_boundary_list = []
 
-    # Instantiate TransitStation objects from 1st row onward
-    for i in range(1, len(response_text_row)):
-        if response_text_row[i] != '': # Skip empty rows; there exists an empty final row if the dataset ends with a new-line character
-            transit_station_list.append(create_transit_station_from_row(response_text_row[i], header_list, dataset_descriptor))
+    # Instantiate LocalAreaBoundary objects from 1st row onward
+    for i in range(1, len(response_text_row) - 1):
+        if response_text_row[i] != '': # Skip empty rows
+            local_area_boundary_list.append(create_local_area_boundary_from_row(response_text_row[i], header_list, dataset_descriptor))
 
-    return transit_station_list
+    return local_area_boundary_list
 
 
-def create_transit_station_from_row(row_text, header_list, dataset_descriptor):
+def create_local_area_boundary_from_row(row_text, header_list, dataset_descriptor):
     '''
-    Function Name: create_transit_station_from_row
-        Instantiates a 'TransitStation' by reading data from a row of text
+    Function Name: create_local_area_boundary_from_row
+        Instantiates a 'LocalAreaBoundary' by reading data from a row of text
         separated by delimiters
     
     Parameters:
@@ -88,7 +84,7 @@ def create_transit_station_from_row(row_text, header_list, dataset_descriptor):
         TypeError -- raises if the attribute 'expected_header' of class 'DatasetDescriptor' is not a dictionary
     
     Returns:
-        TransitStation, object representing a transit station
+        LocalAreaBoundary, object representing a local area boundary
     '''
     if type(row_text) is not str:
         raise TypeError("TypeError: The parameter 'row_text' must be a string")
@@ -110,22 +106,28 @@ def create_transit_station_from_row(row_text, header_list, dataset_descriptor):
 
     row_text_list = row_text.strip().split(dataset_descriptor.delimiter)
 
+    abbreviation = None
     name = None
-    coordinates = None
-    local_area = None
+    list_boundary_coordinates = None
+    centroid_coordinates = None
 
     # Map each data into the correct object attributes matching the correct column index
     for i in range(len(row_text_list)):
-        if i == header_list.index(dataset_descriptor.expected_headers['station name']):
-            name = normalize_station_name(row_text_list[i])
-
-        elif i == header_list.index(dataset_descriptor.expected_headers['coordinates']):
-            coordinates = extract_coordinates(row_text_list[i])
+        if i == header_list.index(dataset_descriptor.expected_headers['abbreviation']):
+            abbreviation = row_text_list[i]
 
         elif i == header_list.index(dataset_descriptor.expected_headers['local area']):
-            local_area = row_text_list[i]
+            name = row_text_list[i]
 
-    return TransitStation(name, coordinates, local_area)
+        elif i == header_list.index(dataset_descriptor.expected_headers['area coordinates']):
+            list_boundary_coordinates = extract_coordinates(row_text_list[i])
+
+        elif i == header_list.index(dataset_descriptor.expected_headers['centroid coordinates']):
+            # 2D x and y coordinates in dataset are in reversed order
+            centroid_coordinates = map(float, row_text_list[i].split(COORDINATES_SEPARATOR)[::-1])
+            centroid_coordinates = tuple(centroid_coordinates)
+
+    return LocalAreaBoundary(abbreviation, name, list_boundary_coordinates, centroid_coordinates)
 
 
 def create_header_list(start_row_text, dataset_descriptor):
@@ -153,28 +155,6 @@ def create_header_list(start_row_text, dataset_descriptor):
     header_list = start_row_text.strip().split(dataset_descriptor.delimiter)
     return header_list
 
-
-def normalize_station_name(raw_station_name):
-    '''
-    Function Name: normalize_station_name
-        Normalizes station name data by removing unnecessary characters and providing
-        consistent spacing before and after '-'s
-    
-    Parameters:
-        raw_station_name -- str, station name read from text file
-    
-    Raises:
-        TypeError -- raises if parameter 'raw_station_name' is not a string
-    
-    Returns:
-        str, normalized station name
-    '''
-    if type(raw_station_name) is not str:
-        raise TypeError("TypeError: The parameter 'raw_station_name' must be a string")
-    
-    temp_station_name = re.sub(NAME_REGEX_SUBSTITUTE_1['pattern'], NAME_REGEX_SUBSTITUTE_1['replacement'], raw_station_name)
-    return re.sub(NAME_REGEX_SUBSTITUTE_2['pattern'], NAME_REGEX_SUBSTITUTE_2['replacement'], temp_station_name)
-
         
 def extract_coordinates(coordinates_json):
     '''
@@ -196,8 +176,11 @@ def extract_coordinates(coordinates_json):
     # Remove extra double-quotations (added when reading the data with requests) from raw data
     # and deserialize the json-format string to a dictionary
     coordinates_dictionary = json.loads(coordinates_json.replace('""', '"').strip('"'))
+    list_coordinates = []
+    for coordinates in coordinates_dictionary['coordinates'][0]:
+        list_coordinates.append(tuple(coordinates))
 
-    return tuple(coordinates_dictionary['coordinates'])
+    return list_coordinates
 
 
 

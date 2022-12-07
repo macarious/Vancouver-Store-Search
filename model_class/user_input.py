@@ -7,7 +7,7 @@ Data Dashboard Final Project
 Class UserInput -- see docstring below
 
 This file is used by the following:
-data_dashboard.py
+graphical_user_input.py
 '''
 
 

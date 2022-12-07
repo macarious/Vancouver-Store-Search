@@ -13,12 +13,12 @@ graphical_user_interface.py
 '''
 
 # Modules
-import dataset_downloader
+import model.dataset_downloader as dataset_downloader
 import json
 
 
 # Classes
-from model.storefront import Storefront
+from model_class.storefront import Storefront
 
 
 def create_storefront_list_from_url(dataset_descriptor):
@@ -53,8 +53,8 @@ def create_storefront_list_from_url(dataset_descriptor):
     storefront_list = []
 
     # Instantiate Storefront objects from 1st row onward
-    for i in range(1, len(response_text_row)):
-        if response_text_row[i] != '': # Skip empty rows; there exists an empty final row if the dataset ends with a new-line character
+    for i in range(1, len(response_text_row) - 1):
+        if response_text_row[i] != '': # Skip empty rows
             storefront_list.append(create_storefront_from_row(response_text_row[i], header_list, dataset_descriptor))
 
     return storefront_list
