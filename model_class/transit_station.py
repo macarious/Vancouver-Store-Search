@@ -64,7 +64,6 @@ class TransitStation:
         self.station_name = name
         self.coordinates = coordinates
         self.local_area = local_area
-        self.nearby_stores = [] # Used in analysis
 
     
     def __str__(self):
