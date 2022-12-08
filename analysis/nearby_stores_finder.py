@@ -19,7 +19,7 @@ graphical_user_interface.py
 COORDINATE_COUNT = 2 # Coordinates are represented by 2 values
 
 
-from model_class.nearby_store import NearbyStore
+from analysis.nearby_store import NearbyStore
 
 
 VACANT_LABELS = ['Vacant', 'Vacant UC', 'Unknown']
@@ -68,7 +68,8 @@ def find_nearby_stores(input, list_storefront):
     filtered_list_storefront = filter_stores_by_category(list_storefront, input.store_category)
     for store in filtered_list_storefront:
         distance = input.transit_station.calculate_distance_to(store.coordinates) # Calculate distance using a TransitStation method
-        list_nearby_stores.append(NearbyStore(store, input.transit_station, distance, input.store_category))
+        nearby_store_object = NearbyStore(store, input.transit_station, distance, input.store_category)
+        list_nearby_stores.append(nearby_store_object)
 
     list_nearby_stores = sort_stores_by_distance(list_nearby_stores)
     list_nearby_stores = remove_duplicated_stores(list_nearby_stores) # Remove stores take up multiple storefronts and from multiple registration

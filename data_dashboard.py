@@ -18,18 +18,13 @@ and the nearby stores marked on it. The user can also specify the maximum number
 of stores to display. The program will only display up to 1000 stores, and the
 maximum search radius from a transit station is 5.0 km.
 
-Classes:
+Classes used for user interaction:
 --------
-DataDescriptor - represents the parameters of a dataset
 GraphicalUserInterface - controls how the terminal interacts with the user
-LocalAreaBoundary -- represents the geographical boundary of a local area
-NearbyStore - represents a store near a transit station
-Storefront - represents a storefront
-TransitStation - represents a transit station
 UserInput -- represents a set of input a user has chosen
 VisualizationView -- controls what is displayed in the visualization
 
-File for model creation:
+Files ussed for model:
 ------------------------
 dataset_downloader -- downloads online dataset and parse them into text
 dataset_parameters -- creates DataDescriptor objects
@@ -37,10 +32,20 @@ local_area_boundary_factory -- clean data and creats 'LocalAreaBoundary' objects
 storefront_factory - cleans data and creates 'Storefront' objects
 transit_station_factory - cleans data and creates 'TransitStation' objects
 
-File for analysis:
+Classes used for model:
+------------------
+DataDescriptor - represents the parameters of a dataset
+LocalAreaBoundary -- represents the geographical boundary of a local area
+Storefront - represents a storefront
+TransitStation - represents a transit station
+
+File used for analysis:
 ------------------
 nearby_stores_finder -- finds and creates 'NearbyStore' objects
 
+Classes used for analysis:
+---------------------
+NearbyStore - represents a store near a transit station
 
 Python libraries (with approval of use):
 ----------------------------------------

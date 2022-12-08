@@ -18,7 +18,7 @@ import json
 
 
 # Classes
-from model_class.storefront import Storefront
+from model.storefront import Storefront
 
 
 def create_storefront_list_from_url(dataset_descriptor):
@@ -53,27 +53,28 @@ def create_storefront_list_from_url(dataset_descriptor):
     storefront_list = []
 
     # Instantiate Storefront objects from 1st row onward
-    for i in range(1, len(response_text_row) - 1):
+    for i in range(1, len(response_text_row)):
         if response_text_row[i] != '': # Skip empty rows
-            storefront_list.append(create_storefront_from_row(response_text_row[i], header_list, dataset_descriptor))
+            storefront_object = create_storefront_from_individual_entry(response_text_row[i], header_list, dataset_descriptor)
+            storefront_list.append(storefront_object)
 
     return storefront_list
 
 
-def create_storefront_from_row(row_text, header_list, dataset_descriptor):
+def create_storefront_from_individual_entry(data_entry, header_list, dataset_descriptor):
     '''
-    Function Name: create_storefront_from_row
+    Function Name: create_storefront_from_individual_entry
         Instantiates 'Storefront' objects by reading the data from a row of text
         separated by delimiters
     
     Parameters:
-        row_text -- str, row of text, which contains data separated by delimiters
+        data_entry -- str, row of text, which contains data separated by delimiters
         header_list -- str, list of headers, read from the first row of text
         dataset_descriptor -- DatasetDescriptor, object containing properties
             relating to a dataset
     
     Raises:
-        TypeError -- raises if the parameter 'row_text' is not a string
+        TypeError -- raises if the parameter 'data_entry' is not a string
         TypeError -- raises if the parameter 'header_list' is not a list
         ValueError -- raises if the parameter 'header_list' is an empty list
         TypeError -- raises if the parameter 'header_list' does not contain elements of type string
@@ -83,8 +84,8 @@ def create_storefront_from_row(row_text, header_list, dataset_descriptor):
     Returns:
         Storefront, object representing a storefront
     '''    
-    if type(row_text) is not str:
-        raise TypeError("TypeError: The parameter 'row_text' must be a string")
+    if type(data_entry) is not str:
+        raise TypeError("TypeError: The parameter 'data_entry' must be a string")
 
     if type(header_list) is not list:
         raise TypeError("TypeError: The parameter 'header_list' must be a list")
@@ -101,7 +102,7 @@ def create_storefront_from_row(row_text, header_list, dataset_descriptor):
     if type(dataset_descriptor.expected_headers) is not dict:
         raise TypeError("TypeError: The attribute 'expected_headers' of class 'DatasetDescriptor' must be a dictionary")
 
-    row_text_list = row_text.strip().split(dataset_descriptor.delimiter)
+    data_entry_list = data_entry.strip().split(dataset_descriptor.delimiter)
 
     store_id = None
     business_name = None
@@ -113,30 +114,30 @@ def create_storefront_from_row(row_text, header_list, dataset_descriptor):
     local_area = None
 
     # Map each data into the correct object attributes matching the correct column index
-    for i in range(len(row_text_list)):
+    for i in range(len(data_entry_list)):
         if i == header_list.index(dataset_descriptor.expected_headers['store id']):
-            store_id = int(row_text_list[i])
+            store_id = int(data_entry_list[i])
 
         elif i == header_list.index(dataset_descriptor.expected_headers['business name']):
-            business_name = row_text_list[i]
+            business_name = data_entry_list[i]
 
         elif i == header_list.index(dataset_descriptor.expected_headers['address unit']):
-            address_unit = row_text_list[i]
+            address_unit = data_entry_list[i]
 
         elif i == header_list.index(dataset_descriptor.expected_headers['address number']):
-            address_number = int(row_text_list[i])
+            address_number = int(data_entry_list[i])
 
         elif i == header_list.index(dataset_descriptor.expected_headers['address street']):
-            address_street = row_text_list[i]
+            address_street = data_entry_list[i]
 
         elif i == header_list.index(dataset_descriptor.expected_headers['retail category']):
-            retail_category = row_text_list[i]
+            retail_category = data_entry_list[i]
 
         elif i == header_list.index(dataset_descriptor.expected_headers['coordinates']):
-            coordinates = extract_coordinates(row_text_list[i])
+            coordinates = extract_coordinates(data_entry_list[i])
 
         elif i == header_list.index(dataset_descriptor.expected_headers['local area']):
-            local_area = row_text_list[i]
+            local_area = data_entry_list[i]
 
     return Storefront(
         store_id, business_name, address_unit, address_number, address_street,
@@ -144,29 +145,29 @@ def create_storefront_from_row(row_text, header_list, dataset_descriptor):
         )
 
 
-def create_header_list(start_row_text, dataset_descriptor):
+def create_header_list(start_data_entry, dataset_descriptor):
     '''
     Function Name: create_header_list
         Creates a list of header from a text of row separated by delimiters
     
     Parameters:
-        start_row_text -- str, the first row of text, which contains the headers
+        start_data_entry -- str, the first row of text, which contains the headers
         dataset_descriptor -- DatasetDescriptor, object containing dataset properies
     
     Raises:
-        TypeError -- raises if the parameter 'start_row_text' is not a string
+        TypeError -- raises if the parameter 'start_data_entry' is not a string
         TypeError -- raises if the attribute 'delimiter' of class 'DatasetDescriptor' is not a string
     
     Returns:
         list of str, list of headers
     '''
-    if type(start_row_text) is not str:
-        raise TypeError("TypeError: The parameter 'start_row_text' must be a string")
+    if type(start_data_entry) is not str:
+        raise TypeError("TypeError: The parameter 'start_data_entry' must be a string")
     
     if type(dataset_descriptor.delimiter) is not str:
         raise TypeError("TypeError: The attribute 'delimiter' from 'dataset_descriptor' object must be a string")
     
-    header_list = start_row_text.strip().split(dataset_descriptor.delimiter)
+    header_list = start_data_entry.strip().split(dataset_descriptor.delimiter)
     return header_list
 
 

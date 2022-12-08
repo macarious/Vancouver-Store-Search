@@ -157,7 +157,7 @@ LABEL_LOADING_MESSAGE_READY = {
     'foreground' : 'sea green',
 }
 LABEL_LOADING_MESSAGE_COMPLETE_NORMAL = {
-    'text' : 'The program has finished searching.\nPlease select between Map View or List View',
+    'text' : 'The program has finished searching.\nPlease select between Map View and List View',
     'foreground' : 'sea green',
 }
 LABEL_LOADING_MESSAGE_COMPLETE_NO_RESULTS = {

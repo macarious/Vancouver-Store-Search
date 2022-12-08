@@ -16,13 +16,13 @@ data_dashboard.py
 '''
 # Modules and Functions
 from model.local_area_boundary_factory import create_local_area_boundary_list_from_url
-from model.nearby_stores_finder import find_nearby_stores
+from analysis.nearby_stores_finder import find_nearby_stores
 from model.storefront_factory import create_storefront_list_from_url
 from model.transit_station_factory import create_transit_station_list_from_url
 
 # Classes
-from model_class.dataset_descriptor import DatasetDescriptor
-from model_class.user_input import UserInput
+from model.dataset_descriptor import DatasetDescriptor
+from user_interface.user_input import UserInput
 from user_interface.visualization_view import VisualizationView
 
 # Downloaded Libraries
@@ -30,9 +30,9 @@ from tkinter import *
 from tkinter import ttk
 
 # Parameters / Constants
-from resources.dataset_parameters import LOCAL_AREA_BOUNDARY
-from resources.dataset_parameters import TRANSIT_STATIONS_DATASET
-from resources.dataset_parameters import STOREFRONTS_DATASET
+from resources.dataset_url import LOCAL_AREA_BOUNDARY
+from resources.dataset_url import TRANSIT_STATIONS_DATASET
+from resources.dataset_url import STOREFRONTS_DATASET
 from user_interface.gui_parameters import *
 
 
@@ -170,8 +170,8 @@ class GraphicalUserInterface:
             # Interact with the model and the view
             self.master.mainloop()
 
-        except Exception as e:
-            self.label_message_display.config(LABEL_LOADING_MESSAGE_ERROR, text = e)
+        except Exception as exception: # Print error message in GUI
+            self.label_message_display.config(LABEL_LOADING_MESSAGE_ERROR, text = exception)
             self.master.mainloop()
 
 
@@ -225,9 +225,12 @@ class GraphicalUserInterface:
         Returns:
             None
         '''
-        self.list_transit_stations = create_transit_station_list_from_url(DatasetDescriptor(**TRANSIT_STATIONS_DATASET))
-        self.list_storefronts = create_storefront_list_from_url(DatasetDescriptor(**STOREFRONTS_DATASET))
-        self.list_local_area_boundaries = create_local_area_boundary_list_from_url(DatasetDescriptor(**LOCAL_AREA_BOUNDARY))
+        transit_station_dataset_parameters = DatasetDescriptor(**TRANSIT_STATIONS_DATASET)
+        storefront_dataset_parameters = DatasetDescriptor(**STOREFRONTS_DATASET)
+        local_area_boundary_dataset_parameters = DatasetDescriptor(**LOCAL_AREA_BOUNDARY)
+        self.list_transit_stations = create_transit_station_list_from_url(transit_station_dataset_parameters)
+        self.list_storefronts = create_storefront_list_from_url(storefront_dataset_parameters)
+        self.list_local_area_boundaries = create_local_area_boundary_list_from_url(local_area_boundary_dataset_parameters)
 
 
     def start_search_button_event(self):
