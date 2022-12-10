@@ -82,9 +82,6 @@ class DatasetDescriptor:
         Raises:
             TypeError -- raises if the attribute 'dataset_name' is not a string
             TypeError -- raises if the attribute 'url' is not a string
-            TypeError -- raises if the attribute 'expected_headers' is not a dictionary
-            TypeError -- raises if the keys of the attribute 'expected_headers' is not a string
-            TypeError -- raises if the values of the attribute 'expeected_headers' is not a string
             TypeError -- raises if the attribute 'delimiter' is not a string
         
         Returns:
@@ -96,15 +93,6 @@ class DatasetDescriptor:
         if type(self.url) is not str:
             raise TypeError("TypeError: The attribute 'url' must be a string")
 
-        if type(self.expected_headers) is not dict:
-            raise TypeError("TypeError: The attribute 'expected_headers' must be a dictionary")
-
-        if not all(type(key) is str for key in self.expected_headers.keys()):
-            raise TypeError("TypeError: The attribute 'expected_headers' must contain strings as keys")
-
-        if not all(type(value) is str for value in self.expected_headers.values()):
-            raise TypeError("TypeError: The attribute 'expected_headers' must contain strings as values")
-
         if type(self.delimiter) is not str:
             raise TypeError("TypeError: The attribute 'delimiter' must be a string")
 
@@ -112,7 +100,6 @@ class DatasetDescriptor:
             f"Dataset Name: {self.dataset_name}\n"
             f"URL: {self.url}\n"
             f"Delimiter: {self.delimiter}\n"
-            f"Expected Headings: {self.expected_headers}\n"
         )
 
     

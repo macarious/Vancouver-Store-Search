@@ -7,7 +7,7 @@ Data Dashboard Final Project
 Class Storefront -- see docstring below
 
 This file is used by the following:
-storefront_factory
+storefront_factory.py
 '''
 
 
@@ -150,7 +150,7 @@ class Storefront:
 
         return (
             f"Store ID: {self.store_id}\n"
-            f"BusinesName: {self.business_name}\n"
+            f"Business Name: {self.business_name}\n"
             f"Address: {self.full_address}\n"
             f"Category: {self.retail_category}\n"
             f"Coordinates: {self.coordinates}\n"

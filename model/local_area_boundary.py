@@ -7,7 +7,7 @@ Data Dashboard Final Project
 Class Name -- LocalAreaBoundary, see docstring below
 
 This file is used by the following:
-local_area_boundary_factory
+local_area_boundary_factory.py
 '''
 
 
@@ -107,7 +107,7 @@ class LocalAreaBoundary:
         return (
             f"Abbreviation: {self.abbreviation}\n"
             f"Name: {self.name}\n"
-            f"Coordinates of Centroid : {self.centroid_coordinates}\n"
+            f"Coordinates of Centroid: {self.centroid_coordinates}\n"
         )
 
     

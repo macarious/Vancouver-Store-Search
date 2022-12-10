@@ -41,7 +41,7 @@ class GraphicalUserInterface:
     Class Name: GraphicalUserInterface
         This class represents the graphical user interface which interacts with
         a user to prompt for input and display output to the user graphically.
-
+_configure_style
         The following methods are available:
         __init__ (Constructor)
         __str__
@@ -54,26 +54,26 @@ class GraphicalUserInterface:
         update_label_display_count_event
 
         The following methods are private:
-        __configure_style
-        __create_primary_frames
-        __display_list_nearby_stores
-        __generate_list_station_names
-        __generate_list_store_categories
-        __populate_frame_title
-        __populate_frame_search_button_control
-        __populate_labelframe_category_control
-        __populate_labelframe_display_count_control
-        __populate_labelframe_instructions
-        __populate_labelframe_message_display
-        __populate_labelframe_output_display
-        __populate_labelframe_search_radius_control
-        __populate_labelframe_station_control
-        __poplulate_menus
-        __refresh_labelframe_output_display
-        __set_grid_configuration
-        __set_minimum_window_size
-        __set_user_interface_state_ready
-        __update_user_input
+        _configure_style
+        _create_primary_frames
+        _display_list_nearby_stores
+        _generate_list_station_names
+        _generate_list_store_categories
+        _populate_frame_title
+        _populate_frame_search_button_control
+        _populate_labelframe_category_control
+        _populate_labelframe_display_count_control
+        _populate_labelframe_instructions
+        _populate_labelframe_message_display
+        _populate_labelframe_output_display
+        _populate_labelframe_search_radius_control
+        _populate_labelframe_station_control
+        _poplulate_menus
+        _refresh_labelframe_output_display
+        _set_grid_configuration
+        _set_minimum_window_size
+        _set_user_interface_state_ready
+        _update_user_input
     '''
     def __init__(self):
         '''
@@ -165,12 +165,12 @@ class GraphicalUserInterface:
             self.create_list_of_objects_from_url()
 
             self.__populate_menus()
-            self.__set_user_interface_state_ready()
+            self._set_user_interface_state_ready()
 
             # Interact with the model and the view
             self.master.mainloop()
 
-        except Exception as exception: # Print error message in GUI
+        except Exception as exception: # Print error message in GUI instead of terminal
             self.label_message_display.config(LABEL_LOADING_MESSAGE_ERROR, text = exception)
             self.master.mainloop()
 
@@ -193,21 +193,21 @@ class GraphicalUserInterface:
         self.master.title(APPLICATION_NAME)
         self.master.resizable(False, False)
 
-        self.__configure_style()
-        self.__create_primary_frames()
+        self._configure_style()
+        self._create_primary_frames()
 
         # Populate each of the primary frames with appropriate frames and widgets
-        self.__populate_frame_title()
-        self.__populate_labelframe_message_display()
-        self.__populate_labelframe_instructions()
-        self.__populate_labelframe_station_control()
-        self.__populate_labelframe_category_control()
-        self.__populate_labelframe_search_radius_control()
-        self.__populate_labelframe_display_count_control()
-        self.__populate_frame_search_button_control()
-        self.__populate_labelframe_output_display()
+        self._populate_frame_title()
+        self._populate_labelframe_message_display()
+        self._populate_labelframe_instructions()
+        self._populate_labelframe_station_control()
+        self._populate_labelframe_category_control()
+        self._populate_labelframe_search_radius_control()
+        self._populate_labelframe_display_count_control()
+        self._populate_frame_search_button_control()
+        self._populate_labelframe_output_display()
 
-        self.__set_minimum_window_size()
+        self._set_minimum_window_size()
 
 
     def create_list_of_objects_from_url(self):
@@ -249,18 +249,18 @@ class GraphicalUserInterface:
         Returns:
             None
         '''
-        self.__update_user_input()
+        self._update_user_input()
 
         # Analysis is done in the 'nearbystores_finder' module
         self.list_nearby_stores = find_nearby_stores(self.user_input, self.list_storefronts)
 
-        self.__refresh_labelframe_output_display() # Refresh labelframe to clear existing output
+        self._refresh_labelframe_output_display() # Refresh labelframe to clear existing output
 
         if len(self.list_nearby_stores) == 0:
             self.label_message_display.config(**LABEL_LOADING_MESSAGE_COMPLETE_NO_RESULTS)
 
         else:
-            self.__display_list_nearby_stores()
+            self._display_list_nearby_stores()
             current_map_view = VisualizationView(self)
             current_map_view.display_legend()
             current_map_view.display_map_nearby_stores()
@@ -308,9 +308,9 @@ class GraphicalUserInterface:
         self.label_display_count.config(text = label_text)
 
 
-    def __configure_style(self):
+    def _configure_style(self):
         '''
-        Method Name: __configure_style
+        Method Name: _configure_style
             Configures the style of the various widgets in the program.
         
         Parameters:
@@ -329,9 +329,9 @@ class GraphicalUserInterface:
         self.style.configure(**STYLE_TREEVIEW_OUTPUT)
 
 
-    def __create_primary_frames(self):
+    def _create_primary_frames(self):
         '''
-        Method Name: __create_primary_frames
+        Method Name: _create_primary_frames
             Creates the primary, top-level frames in the application window.
         
         Parameters:
@@ -364,9 +364,9 @@ class GraphicalUserInterface:
         self.labelframe_output_display.grid(**LABELFRAME_OUTPUT_DISPLAY_GRID, **DEFAULT_GRID_CONFIG)
 
 
-    def __display_list_nearby_stores(self):
+    def _display_list_nearby_stores(self):
         '''
-        Method Name: __display_list_nearby_stores
+        Method Name: _display_list_nearby_stores
             Creates the primary, top-level frames in the application window.
         
         Parameters:
@@ -387,9 +387,9 @@ class GraphicalUserInterface:
             self.treeview_output_display.set(i, TREEVIEW_OUTPUT_DISPLAY_COLUMN_RETAIL_CATEGORY['column'], self.list_nearby_stores[i].storefront.retail_category)
 
 
-    def __generate_list_station_names(self):
+    def _generate_list_station_names(self):
         '''
-        Method Name: __generate_list_station_names
+        Method Name: _generate_list_station_names
             Generate a list of transit station names from a list of 'TransitStation' objects
         
         Parameters:
@@ -419,9 +419,9 @@ class GraphicalUserInterface:
         self.list_station_names = sorted(list_station_names)
 
 
-    def __generate_list_store_categories(self):
+    def _generate_list_store_categories(self):
         '''
-        Method Name: __generate_list_store_categories
+        Method Name: _generate_list_store_categories
             Generate a list of store categories form a list of 'Storefront' objects
         
         Parameters:
@@ -449,9 +449,9 @@ class GraphicalUserInterface:
         self.list_store_categories = sorted(list_store_categories)
 
 
-    def __populate_frame_title(self):
+    def _populate_frame_title(self):
         '''
-        Method Name: __populate_frame_title
+        Method Name: _populate_frame_title
             Populate the 'title' frame with a label'
         
         Parameters:
@@ -469,9 +469,9 @@ class GraphicalUserInterface:
         self.label_author.pack(**DEFAULT_PACK_CONFIG)
 
 
-    def __populate_frame_search_button_control(self):
+    def _populate_frame_search_button_control(self):
         '''
-        Method Name: __populate_frame_search_button_control
+        Method Name: _populate_frame_search_button_control
             Populate the 'search button contro' frame with a button
         
         Parameters:
@@ -487,9 +487,9 @@ class GraphicalUserInterface:
         self.button_search.pack(**DEFAULT_PACK_CONFIG)
 
 
-    def __populate_labelframe_category_control(self):
+    def _populate_labelframe_category_control(self):
         '''
-        Method Name: __populate_labelframe_category_control
+        Method Name: _populate_labelframe_category_control
             Populate the 'category control' label frame with a combobox (drop-down menu)
         
         Parameters:
@@ -506,9 +506,9 @@ class GraphicalUserInterface:
         self.combobox_category_control.pack(**DEFAULT_PACK_CONFIG)
 
 
-    def __populate_labelframe_display_count_control(self):
+    def _populate_labelframe_display_count_control(self):
         '''
-        Method Name: __populate_labelframe_display_count_control
+        Method Name: _populate_labelframe_display_count_control
             Populate the 'display count control' label frame with a scale (slider) and a label
         
         Parameters:
@@ -528,9 +528,9 @@ class GraphicalUserInterface:
         self.label_display_count.pack(**DEFAULT_PACK_CONFIG, side = LEFT)
 
 
-    def __populate_labelframe_instructions(self):
+    def _populate_labelframe_instructions(self):
         '''
-        Method Name: __populate_labelframe_instructions
+        Method Name: _populate_labelframe_instructions
             Populate the 'instructions' label frame with a label
         
         Parameters:
@@ -546,9 +546,9 @@ class GraphicalUserInterface:
         self.label_instructions.pack(**DEFAULT_PACK_CONFIG)
 
 
-    def __populate_labelframe_message_display(self):
+    def _populate_labelframe_message_display(self):
         '''
-        Method Name: __populate_labelframe_message_display
+        Method Name: _populate_labelframe_message_display
             Populate the 'message display' label frame with a label
         
         Parameters:
@@ -564,9 +564,9 @@ class GraphicalUserInterface:
         self.label_message_display.pack(**DEFAULT_PACK_CONFIG)
 
 
-    def __populate_labelframe_output_display(self):
+    def _populate_labelframe_output_display(self):
         '''
-        Method Name: __populate_labelframe_output_display
+        Method Name: _populate_labelframe_output_display
             Populate the 'output display' label frame with a notebook. The notebook contains
             two tabs:
                 (1) Map View -- canvas and a label frame
@@ -616,9 +616,9 @@ class GraphicalUserInterface:
         self.treeview_output_display.column(**TREEVIEW_OUTPUT_DISPLAY_COLUMN_RETAIL_CATEGORY)
 
 
-    def __populate_labelframe_search_radius_control(self):
+    def _populate_labelframe_search_radius_control(self):
         '''
-        Method Name: __populate_labelframe_search_radius_control
+        Method Name: _populate_labelframe_search_radius_control
             Populate the 'search radius control' label frame with a scale (slider) and a label
         
         Parameters:
@@ -638,7 +638,7 @@ class GraphicalUserInterface:
         self.label_search_radius.pack(**DEFAULT_PACK_CONFIG, side = LEFT)
 
 
-    def __populate_labelframe_station_control(self):
+    def _populate_labelframe_station_control(self):
         '''
         Method Name: __populate_flabelframe_station_control
             Populate the 'station control' label frame with a combobox (drop-down menu)
@@ -687,8 +687,8 @@ class GraphicalUserInterface:
         if len(self.list_storefronts) == 0:
             raise ValueError("ValueError: The attribute 'list_storefronts' cannot be empty")
             
-        self.__generate_list_station_names()
-        self.__generate_list_store_categories()
+        self._generate_list_station_names()
+        self._generate_list_store_categories()
 
         self.combobox_station_control.config(values = self.list_station_names)
         self.combobox_station_control.current(0) # Set first item in list as default
@@ -697,9 +697,9 @@ class GraphicalUserInterface:
         self.combobox_category_control.current(0) # Set first item in list as default
 
 
-    def __refresh_labelframe_output_display(self):
+    def _refresh_labelframe_output_display(self):
         '''
-        Method Name: __refresh_labelframe_output_display
+        Method Name: _refresh_labelframe_output_display
             Refreshes the 'output display' notebook by destroying it and recreating it
         
         Parameters:
@@ -712,12 +712,12 @@ class GraphicalUserInterface:
             None
         '''
         self.notebook_output_display.destroy()
-        self.__populate_labelframe_output_display()
+        self._populate_labelframe_output_display()
 
 
-    def __set_minimum_window_size(self):
+    def _set_minimum_window_size(self):
         '''
-        Method Name: __set_minimum_window_size
+        Method Name: _set_minimum_window_size
             Set the minimim window size to its current size
         
         Parameters:
@@ -733,9 +733,9 @@ class GraphicalUserInterface:
         self.master.minsize(self.master.winfo_width(), self.master.winfo_height())
 
 
-    def __set_user_interface_state_ready(self):
+    def _set_user_interface_state_ready(self):
         '''
-        Method Name: __set_user_interface_state_ready
+        Method Name: _set_user_interface_state_ready
             Enable widgets after application has finished downloading the dataset
             and populating the menus
         
@@ -754,9 +754,9 @@ class GraphicalUserInterface:
         self.button_search.config(state = NORMAL)
 
 
-    def __update_user_input(self):
+    def _update_user_input(self):
         '''
-        Method Name: __update_user_input
+        Method Name: _update_user_input
             Create a 'UserInput' object with the current user input
         
         Parameters:

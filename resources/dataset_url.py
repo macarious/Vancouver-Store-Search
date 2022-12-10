@@ -18,7 +18,7 @@ graphical_user_interface.py
 TRANSIT_STATIONS_DATASET = {
     'dataset_name' : 'Transit Stations',
     'url' : 'https://opendata.vancouver.ca/explore/dataset/rapid-transit-stations/download/?format=csv&timezo=America/Los_Angeles&lang=en&use_labels_for_header=true&csv_separator=%3B&epsg=26910',
-    'expected_headers': {
+    'expected_headers' : {
         'station name' : 'STATION',
         'coordinates' : 'Geom',
         'local area' : 'Geo Local Area',

@@ -7,11 +7,13 @@ Data Dashboard Final Project
 Class Name -- TransitStation, see docstring below
 
 This file is used by the following:
-transit_station_factory
+transit_station_factory.py
 '''
 
 
 COORDINATE_COUNT = 2 # Coordinates are represented by 2 values
+X_COORDINATE_INDEX = 0
+Y_COORDINATE_INDEX = 1
 
 
 class TransitStation:
@@ -137,8 +139,6 @@ class TransitStation:
             TypeError -- raises if the parameter 'destination_coordinates' is not a tuple
             ValueError -- raises if the attribute 'coordinates' of class 'TransitStation' does not contain exaclty 2 values
             ValueError -- raises if the parameter 'destination_coordinates' does not contain exaclty 2 values
-            TypeError -- raises if the attribute 'coordinates' of class 'TransitStation' does not contain all floats
-            TypeError -- raises if the parameter 'destination_coordinates' does not contain all floats
         
         Returns:
             float, a distance between distination and transit station, in metres
@@ -154,9 +154,8 @@ class TransitStation:
             ):
             raise ValueError("ValueError: The attribute 'coordinates' of class 'TransitStation' must contain exactly 2 floats")
 
-        if (not all(type(value) is float for value in self.coordinates)) or (not all(type(value) in (int, float) for value in destination_coordinates)):
-            raise TypeError("TypeError: The attribute 'coordinates' of class 'TransitStation' must contain exactly 2 floats")
-
-       # Formula to calculate distance between two points:
-       # Distance = ((x_1 - x_2) ** 2 + (y_1 - y_2) ** 2) ** 0.5
-        return ((self.coordinates[0] - destination_coordinates[0]) ** 2 + (self.coordinates[1] - destination_coordinates[1]) ** 2) ** 0.5
+        # Formula to calculate distance between two points:
+        # Distance = ((x_1 - x_2) ** 2 + (y_1 - y_2) ** 2) ** 0.5
+        x = X_COORDINATE_INDEX
+        y = Y_COORDINATE_INDEX
+        return ((self.coordinates[x] - destination_coordinates[x]) ** 2 + (self.coordinates[y] - destination_coordinates[y]) ** 2) ** 0.5

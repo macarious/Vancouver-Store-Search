@@ -31,16 +31,16 @@ class VisualizationView:
         display_legend
 
         The following methods are private:
-        __calculate_canvas_scale
-        __calculate_scaled_centroid_all_local_area_boundary
-        __draw_all_local_area_boundaries
-        __draw_local_area_boundaries
-        __draw_circle_marker
-        __mark_transit_station
-        __mark_nearby_stores
-        __mark_search_radius
-        __normalize_coordinates
-        __print_local_area_names
+        _calculate_canvas_scale
+        _calculate_scaled_centroid_all_local_area_boundary
+        _draw_all_local_area_boundaries
+        _draw_local_area_boundary
+        _draw_circle_marker
+        _mark_transit_station
+        _mark_nearby_stores
+        _mark_search_radius
+        _normalize_coordinates
+        _print_local_area_names
     '''
     def __init__(self, graphical_user_interface):
         '''
@@ -146,12 +146,12 @@ class VisualizationView:
         Returns:
             None
         '''
-        self.scale = self.__calculate_canvas_scale()
-        self.__draw_all_local_area_boundaries()
-        self.__print_local_area_names()
-        self.__mark_search_radius()
-        self.__mark_nearby_stores()
-        self.__mark_transit_station()
+        self.scale = self._calculate_canvas_scale()
+        self._draw_all_local_area_boundaries()
+        self._print_local_area_names()
+        self._mark_search_radius()
+        self._mark_nearby_stores()
+        self._mark_transit_station()
 
 
     def display_legend(self):
@@ -186,9 +186,9 @@ class VisualizationView:
             ttk.Label(self.legend, text = label_text_right, **LABEL_LEGEND_RIGHT).grid(row = i, column = 1)
 
 
-    def __calculate_canvas_scale(self):
+    def _calculate_canvas_scale(self):
         '''
-        Method Name: __calculate_canvas_scale
+        Method Name: _calculate_canvas_scale
             Calculates the scale from the EPSG 26910 coordinates to the canvas size
         
         Parameters:
@@ -231,9 +231,9 @@ class VisualizationView:
         return CANVAS_MAP_SCALE * min(scale_x, scale_y)
 
 
-    def __calculate_scaled_centroid_all_local_area_boundary(self):
+    def _calculate_scaled_centroid_all_local_area_boundary(self):
         '''
-        Method Name: __calculate_scaled_centroid_all_local_area_boundary
+        Method Name: _calculate_scaled_centroid_all_local_area_boundary
             Calculates the centroid (scaled) for all the local area
         
         Parameters:
@@ -266,9 +266,9 @@ class VisualizationView:
         return (map_centroid_x, map_centroid_y)
 
 
-    def __draw_all_local_area_boundaries(self):
+    def _draw_all_local_area_boundaries(self):
         '''
-        Method Name: __draw_all_local_area_boundaries
+        Method Name: _draw_all_local_area_boundaries
             Draws the boundaries of all local areas on the canvas
         
         Parameters:
@@ -288,12 +288,12 @@ class VisualizationView:
             raise ValueError("ValueError: The attribute 'list_local_area_boundaries' must not be empty")
 
         for local_area_boundary in self.list_local_area_boundaries:
-            self.__draw_local_area_boundary(local_area_boundary.list_boundary_coordinates)
+            self._draw_local_area_boundary(local_area_boundary.list_boundary_coordinates)
 
 
-    def __draw_local_area_boundary(self, list_boundary_coordinates):
+    def _draw_local_area_boundary(self, list_boundary_coordinates):
         '''
-        Method Name: __draw_local_area_boundary
+        Method Name: _draw_local_area_boundary
             Draws the boundary of a local area on the canvas
         
         Parameters:
@@ -315,15 +315,15 @@ class VisualizationView:
 
         list_polygon_coordinates = []
         for coordinates in list_boundary_coordinates:
-            coordinates = self.__normalize_coordinates(coordinates)
+            coordinates = self._normalize_coordinates(coordinates)
             list_polygon_coordinates.append(coordinates[0])
             list_polygon_coordinates.append(coordinates[1])
         self.canvas.create_polygon(list_polygon_coordinates, **CANVAS_DRAW_MAP)
 
 
-    def __draw_circle_marker(self, coordinates, radius, config_settings):
+    def _draw_circle_marker(self, coordinates, radius, config_settings):
         '''
-        Method Name: __draw_local_area_boundary
+        Method Name: _draw_circle_marker
             Draws the boundary of a local area on the canvas
         
         Parameters:
@@ -356,7 +356,7 @@ class VisualizationView:
         if type(config_settings) is not dict:
             raise TypeError("TypeError: The parameter 'config_settings' must be a dict")
 
-        marker_coordinates = self.__normalize_coordinates(coordinates)
+        marker_coordinates = self._normalize_coordinates(coordinates)
         marker_points = [
             marker_coordinates[0] - radius,
             marker_coordinates[1] - radius,
@@ -366,9 +366,9 @@ class VisualizationView:
         self.canvas.create_oval(marker_points, **config_settings)
 
 
-    def __mark_transit_station(self):
+    def _mark_transit_station(self):
         '''
-        Method Name: __mark_transit_station
+        Method Name: _mark_transit_station
             Mark the location of the transit station on the map
         
         Parameters:
@@ -389,12 +389,12 @@ class VisualizationView:
         if (len(marker_coordinates) != COORDINATE_COUNT) or (not all(type(value) is float for value in marker_coordinates)):
             raise ValueError("ValueError: The attribute 'coordinates' of class 'TransitStation' must contain exactly 2 floats")
 
-        self.__draw_circle_marker(marker_coordinates, CANVAS_STATION_MARKER_RADIUS, CANVAS_STATION_MARKER)
+        self._draw_circle_marker(marker_coordinates, CANVAS_STATION_MARKER_RADIUS, CANVAS_STATION_MARKER)
 
 
-    def __mark_nearby_stores(self):
+    def _mark_nearby_stores(self):
         '''
-        Method Name: __mark_nearby_stores
+        Method Name: _mark_nearby_stores
             Mark the locations of nearby stores on the map
         
         Parameters:
@@ -412,12 +412,12 @@ class VisualizationView:
         display_count = min(len(self.list_nearby_stores), self.user_input.max_display_count)
         for i in range(display_count):
             marker_coordinates = self.list_nearby_stores[i].storefront.coordinates
-            self.__draw_circle_marker(marker_coordinates, CANVAS_STORE_MARKER_RADIUS, CANVAS_STORE_MARKER)
+            self._draw_circle_marker(marker_coordinates, CANVAS_STORE_MARKER_RADIUS, CANVAS_STORE_MARKER)
 
     
-    def __mark_search_radius(self):
+    def _mark_search_radius(self):
         '''
-        Method Name: __mark_search_radius
+        Method Name: _mark_search_radius
             Mark the locations of nearby stores on the map
         
         Parameters:
@@ -456,12 +456,12 @@ class VisualizationView:
             raise ValueError("ValueError: The attribute 'scale' must be a positive number")
 
         radius = self.scale * search_radius
-        self.__draw_circle_marker(marker_coordinates, radius, CANVAS_SEARCH_MARKER)
+        self._draw_circle_marker(marker_coordinates, radius, CANVAS_SEARCH_MARKER)
 
 
-    def __normalize_coordinates(self, coordinates):
+    def _normalize_coordinates(self, coordinates):
         '''
-        Method Name: __normalize_coordinates
+        Method Name: _normalize_coordinates
             Mark the locations of nearby stores on the map
         
         Parameters:
@@ -490,7 +490,7 @@ class VisualizationView:
 
         self.canvas.update()
         centroid_canvas = (self.canvas.winfo_width() / 2, self.canvas.winfo_height() / 2)
-        scaled_centroid_local_area_boundary = self.__calculate_scaled_centroid_all_local_area_boundary()
+        scaled_centroid_local_area_boundary = self._calculate_scaled_centroid_all_local_area_boundary()
         
         x_offset = centroid_canvas[0] - scaled_centroid_local_area_boundary[0]
         y_offset = centroid_canvas[1] - scaled_centroid_local_area_boundary[1]
@@ -506,9 +506,9 @@ class VisualizationView:
         return normalized_x_coordinate, normalized_y_coordinates
 
 
-    def __print_local_area_names(self):
+    def _print_local_area_names(self):
         '''
-        Method Name: __print_local_area_name
+        Method Name: _print_local_area_names
             Displays the local area abbreviation on the map
         
         Parameters:
@@ -528,5 +528,5 @@ class VisualizationView:
             raise ValueError("ValueError: The attribute 'list_local_area_boundaries' must not be empty")
 
         for local_area in self.list_local_area_boundaries:
-            text_coordinates = self.__normalize_coordinates(local_area.centroid_coordinates)
+            text_coordinates = self._normalize_coordinates(local_area.centroid_coordinates)
             self.canvas.create_text(*text_coordinates, text = local_area.abbreviation, **CANVAS_LOCAL_AREA_NAME)
