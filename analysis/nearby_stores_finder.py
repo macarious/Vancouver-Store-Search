@@ -6,9 +6,6 @@ Data Dashboard Final Project
 
 Module Name -- nearby_stores_finder
 
-Note that part of the analysis is done using the 'calculate_distance_to'
-method from the 'TransitStation' class.
-
 This file contains functions that uses 'Storefront' and 'TransitStation'
 objects and create a sorted list of all nearby stores around a specified
 transit station. The list contains 'NearbyStore' objects. Store category
@@ -70,7 +67,12 @@ def find_nearby_stores(input, list_storefront):
     list_nearby_stores = []
     filtered_list_storefront = filter_stores_by_category(list_storefront, input.store_category)
     for store in filtered_list_storefront:
-        distance = input.transit_station.calculate_distance_to(store.coordinates) # Calculate distance using a TransitStation method
+        ####################################################
+        # Calculate distance using a TransitStation method #
+        ####################################################
+        # Note that part of the analysis (calculation part) is done using the
+        # calculate_distance_to method from the 'TransitStation' class
+        distance = input.transit_station.calculate_distance_to(store.coordinates) 
         nearby_store_object = NearbyStore(store, input.transit_station, distance, input.store_category)
         list_nearby_stores.append(nearby_store_object)
 
