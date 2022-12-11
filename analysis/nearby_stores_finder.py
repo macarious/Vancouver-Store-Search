@@ -110,12 +110,12 @@ def filter_stores_by_category(list_storefront, store_category):
         raise TypeError("TypeError: The parameter 'store_category' must be a string")
     
     if store_category == 'All':
-        filtered_list = filter(lambda storefront: storefront.retail_category not in VACANT_LABELS, list_storefront)
-        return list(filtered_list)
+        non_vacant_category_filter = filter(lambda storefront: storefront.retail_category not in VACANT_LABELS, list_storefront)
+        return list(non_vacant_category_filter)
 
-    filtered_list = filter(lambda storefront: storefront.retail_category == store_category, list_storefront)
+    matching_category_filter = filter(lambda storefront: storefront.retail_category == store_category, list_storefront)
     
-    return list(filtered_list)
+    return list(matching_category_filter)
 
 
 def filter_stores_by_search_radius(list_nearby_stores, search_radius):
