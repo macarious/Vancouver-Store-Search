@@ -4,7 +4,7 @@ HUI, Macarious Kin Fung
 
 Data Dashboard Final Project
 
-Module Name -- dataset_parameters
+Module Name -- dataset_url
 
 This program contains the parameters of each dataset. The paremeters
 are used to instantiate 'DatasetDescriptor' and they are used to

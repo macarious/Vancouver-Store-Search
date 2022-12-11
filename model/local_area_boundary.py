@@ -120,11 +120,15 @@ class LocalAreaBoundary:
             other -- LocalAreaBoundary, object representing a local area boundary
         
         Raises:
+            TypeError -- raises if the parameter 'other' is not a 'LocalAreaBoundary' object
             TypeError -- raises if the attribute 'name' is not a string
         
         Returns:
             bool, True if the 'station_name' attributes are the same; False otherwise
         '''
+        if type(other) is not LocalAreaBoundary:
+            raise TypeError("TypeError: The parameter 'other' must be a 'LocalAreaBoundary' object")
+
         if (type(self.name) is not str) or (type(other.name) is not str):
             raise TypeError("TypeError: The attribute 'name' of class 'LocalAreaBoundary' must be a string")
 

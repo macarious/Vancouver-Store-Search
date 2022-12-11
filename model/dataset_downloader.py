@@ -33,8 +33,8 @@ def read_url(url):
 
     Raises:
         TypeError -- raises if URL is not a str
-        ConnectionError -- raises if network problem occurs
         HTTP Error -- raises if HTTP request returns an unsuccessful status code
+        ConnectionError -- raises if network problem occurs
         TooManyRedirects -- raises if there are too many redirect attempts
         Timeout -- raises if the connection has timed out while trying to connect to url
         ValueError -- raises if text does not contain any content

@@ -296,16 +296,11 @@ STYLE_TREEVIEW_OUTPUT = {
     'style' : 'output.Treeview',
     'font' : ('Arial', 8),
 }
-
 HEADER_LIST_NEARBY_STORE = ['Store Name', 'Distance', 'Address', 'Retail Category',]
 DISTANCE_UNIT_DISPLAY = 'km'
 DISTANCE_UNIT_SCROLLBAR = 'km'
 METRE_TO_KILOMETRE_CONVERSTION = 1 / 1000
 DISTANCE_UNIT_FORMAT = '{:.1f}'
-ADDITIONAL_STORE_CATEGORY = 'All'
-UNUSED_STORE_CATEGORY = ['Vacant', 'Vacant UC', 'Unknown']
-
-
 # Constants used for Visualization (Map View)
 
 COORDINATE_COUNT = 2 # Coordinates are represented by 2 values

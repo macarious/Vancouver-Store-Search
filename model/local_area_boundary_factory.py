@@ -32,21 +32,16 @@ def create_local_area_boundary_list_from_url(dataset_descriptor):
         delimiters
     
     Parameters:
-        url -- str, URL for accessing the dataset online
         dataset_descriptor -- DatasetDescriptor, object containing properties
             relating to a dataset
     
     Raises:
         TypeError -- raises if the attribute 'url' of class 'DatasetDescriptor is not a string
-        TypeError -- raises if the attribute 'delimiter' of class 'DatasetDescriptor is not a string
     
     Returns:
     '''
     if type(dataset_descriptor.url) is not str:
         raise TypeError("TypeError: The attribute 'url' of class 'DatasetDescriptor must be a string")
-
-    if type(dataset_descriptor.delimiter) is not str:
-        raise TypeError("TypeError: The attribute 'delimiter' of class 'DatasetDescriptor must be a string")
 
     response_text = dataset_downloader.read_url(dataset_descriptor.url)
     response_text_row = response_text.split('\n')
@@ -64,20 +59,20 @@ def create_local_area_boundary_list_from_url(dataset_descriptor):
     return local_area_boundary_list
 
 
-def create_local_area_boundary_from_individual_entry(data_entry, header_list, dataset_descriptor):
+def create_local_area_boundary_from_individual_entry(entry_of_data, header_list, dataset_descriptor):
     '''
     Function Name: create_local_area_boundary_from_individual_entry
         Instantiates a 'LocalAreaBoundary' by reading data from a row of text
         separated by delimiters
     
     Parameters:
-        data_entry -- str, row of text, which contains data separated by delimiters
+        entry_of_data -- str, row of text, which contains data separated by delimiters
         header_list -- str, list of headers, read from the first row of text
         dataset_descriptor -- DatasetDescriptor, object containing properties
             relating to a dataset
     
     Raises:
-        TypeError -- raises if the parameter 'data_entry' is not a string
+        TypeError -- raises if the parameter 'entry_of_data' is not a string
         TypeError -- raises if the parameter 'header_list' is not a list
         ValueError -- raises if the parameter 'header_list' is an empty list
         TypeError -- raises if the parameter 'header_list' does not contain elements of type string
@@ -87,8 +82,8 @@ def create_local_area_boundary_from_individual_entry(data_entry, header_list, da
     Returns:
         LocalAreaBoundary, object representing a local area boundary
     '''
-    if type(data_entry) is not str:
-        raise TypeError("TypeError: The parameter 'data_entry' must be a string")
+    if type(entry_of_data) is not str:
+        raise TypeError("TypeError: The parameter 'entry_of_data' must be a string")
 
     if type(header_list) is not list:
         raise TypeError("TypeError: The parameter 'header_list' must be a list")
@@ -105,7 +100,7 @@ def create_local_area_boundary_from_individual_entry(data_entry, header_list, da
     if type(dataset_descriptor.expected_headers) is not dict:
         raise TypeError("TypeError: The attribute 'expected_headers' of class 'DatasetDescriptor' must be a dictionary")
 
-    data_entry_list = data_entry.strip().split(dataset_descriptor.delimiter)
+    entry_of_data_list = entry_of_data.strip().split(dataset_descriptor.delimiter)
 
     abbreviation = None
     name = None
@@ -113,47 +108,47 @@ def create_local_area_boundary_from_individual_entry(data_entry, header_list, da
     centroid_coordinates = None
 
     # Map each data into the correct object attributes matching the correct column index
-    for i in range(len(data_entry_list)):
+    for i in range(len(entry_of_data_list)):
         if i == header_list.index(dataset_descriptor.expected_headers['abbreviation']):
-            abbreviation = data_entry_list[i]
+            abbreviation = entry_of_data_list[i]
 
         elif i == header_list.index(dataset_descriptor.expected_headers['local area']):
-            name = data_entry_list[i]
+            name = entry_of_data_list[i]
 
         elif i == header_list.index(dataset_descriptor.expected_headers['area coordinates']):
-            list_boundary_coordinates = extract_coordinates(data_entry_list[i])
+            list_boundary_coordinates = extract_coordinates(entry_of_data_list[i])
 
         elif i == header_list.index(dataset_descriptor.expected_headers['centroid coordinates']):
             # x- and y-coordinates in dataset are in reversed order; needs to be reversed
-            centroid_coordinates = map(float, data_entry_list[i].split(COORDINATES_SEPARATOR)[::-1])
+            centroid_coordinates = map(float, entry_of_data_list[i].split(COORDINATES_SEPARATOR)[::-1])
             centroid_coordinates = tuple(centroid_coordinates)
 
     return LocalAreaBoundary(abbreviation, name, list_boundary_coordinates, centroid_coordinates)
 
 
-def create_header_list(start_data_entry, dataset_descriptor):
+def create_header_list(start_entry_of_data, dataset_descriptor):
     '''
     Function Name: create_header_list
         Creates a list of headers from a text of row separated by delimiters
     
     Parameters:
-        start_data_entry -- str, the first row of text, which contains the headers
+        start_entry_of_data -- str, the first row of text, which contains the headers
         dataset_descriptor -- DatasetDescriptor, object containing dataset properies
     
     Raises:
-        TypeError -- raises if the parameter 'start_data_entry' is not a string
+        TypeError -- raises if the parameter 'start_entry_of_data' is not a string
         TypeError -- raises if the attribute 'delimiter' of class 'DatasetDescriptor' is not a string
     
     Returns:
         list of str, list of headers
     '''
-    if type(start_data_entry) is not str:
-        raise TypeError("TypeError: The parameter 'start_data_entry' must be a string")
+    if type(start_entry_of_data) is not str:
+        raise TypeError("TypeError: The parameter 'start_entry_of_data' must be a string")
     
     if type(dataset_descriptor.delimiter) is not str:
         raise TypeError("TypeError: The attribute 'delimiter' of class 'DatasetDescriptor must be a string")
     
-    header_list = start_data_entry.strip().split(dataset_descriptor.delimiter)
+    header_list = start_entry_of_data.strip().split(dataset_descriptor.delimiter)
     return header_list
 
         
@@ -176,7 +171,8 @@ def extract_coordinates(coordinates_json):
 
     # Remove extra double-quotations (added when reading the data with requests) from raw data
     # and deserialize the json-format string to a dictionary
-    coordinates_dictionary = json.loads(coordinates_json.replace('""', '"').strip('"'))
+    coordinates_json_cleaned = coordinates_json.replace('""', '"').strip('"')
+    coordinates_dictionary = json.loads(coordinates_json_cleaned)
     list_coordinates = []
     for coordinates in coordinates_dictionary['coordinates'][0]:
         list_coordinates.append(tuple(coordinates))

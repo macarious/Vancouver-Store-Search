@@ -11,7 +11,7 @@ graphical_user_input.py
 '''
 
 
-DEFAULT_MAX_DISPLAY_COUNT = 10
+DEFAULT_MAX_DISPLAY_COUNT = 50
 DEFAULT_SEARCH_RADIUS = 0.0
 DEFAULT_STORE_CATEGORY = 'All'
 
@@ -47,7 +47,7 @@ class UserInput:
         '''
         self.name = 'User Input'
         self.transit_station = None
-        self.store_category = DEFAULT_MAX_DISPLAY_COUNT
+        self.store_category = DEFAULT_STORE_CATEGORY
         self.search_radius = DEFAULT_SEARCH_RADIUS
         self.max_display_count = DEFAULT_MAX_DISPLAY_COUNT
 
@@ -55,15 +55,15 @@ class UserInput:
     def __str__(self):
         '''
         Function Name: __str__
-            Defines a string when a 'TerminalInterface' object is converted to a string
+            Defines a string when a 'UserInput' object is converted to a string
             (ex. when calling the 'str' and 'print' function)
         
         Parameters:
             Nothing
         
         Raises:
-            TypeError -- raises if the attribute 'name' is not a string
             ValueError -- raises if no transit station has been selected
+            TypeError -- raises if the attribute 'name' is not a string
             TypeError -- raises if the attribute 'station_name' of class 'TransitStation' is not a string
             TypeError -- raises if the attribute 'store_category' is not a string
             TypeError -- raises if the attribute 'search_radius' is not a float
@@ -72,11 +72,11 @@ class UserInput:
         Returns:
             str, the string used when 'str' or 'print' function is called
         '''
+        if self.transit_station is None:
+            raise ValueError("ValueError: No transit station has been selected")
+
         if type(self.name) is not str:
             raise TypeError("TypeError: The attribute 'name' must be a string")
-
-        if type(self.transit_station) is None:
-            raise ValueError("ValueError: No transit station has been selected")
 
         if type(self.transit_station.station_name) is not str:
             raise TypeError("TypeError: The attribute 'station_name' of class 'TransitStation' must be a string")
@@ -114,13 +114,36 @@ class UserInput:
         Raises:
             TypeError -- raises if the parameter 'other' is not a UserInput object
             TypeError -- raises if the attribute 'name' is not a string
+            TypeError -- raises if the attribute 'station_name' of class 'TransitStation' is not a string
+            TypeError -- raises if the attribute 'store_category' is not a string
+            TypeError -- raises if the attribute 'search_radius' is not a float
+            TypeError -- raises if the attribute 'max_display_count' is not an integer
         
         Returns:
-            bool, True if the attributes 'name' are the same, False otherwise
+            bool, True if all attributes are the same, False otherwise
         '''
-        if other is not UserInput:
-            raise TypeError("TypeError: The parameter 'other' must be a UserInput object")
+        if type(other) is not UserInput:
+            raise TypeError("TypeError: The parameter 'other' must be a 'UserInput' object")
+
         if (type(self.name) is not str) or (type(other.name) is not str):
             raise TypeError("TypeError: The attribute 'name' must be a string")
 
-        return self.name == other.name
+        if (type(self.transit_station.station_name) is not str) or (type(other.transit_station.station_name) is not str):
+            raise TypeError("TypeError: The attribute 'station_name' of class 'TransitStation' must be a string")
+
+        if (type(self.store_category) is not str) or (type(other.store_category) is not str):
+            raise TypeError("TypeError: The attribute 'store_category' must be a string")
+
+        if (type(self.search_radius) is not float or (type(other.search_radius) is not float)):
+            raise TypeError("TypeError: The attribute 'search_radius' must be a float")
+
+        if (type(self.max_display_count) is not int) or (type(other.max_display_count) is not int):
+            raise TypeError("TypeError: The attribute 'max_display_count' must be an integer")
+
+        return (
+            (self.name == other.name) and
+            (self.transit_station == other.transit_station) and
+            (self.store_category == other.store_category) and
+            (self.search_radius == other.search_radius) and
+            (self.max_display_count == other.max_display_count)
+        )

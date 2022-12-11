@@ -29,21 +29,16 @@ def create_storefront_list_from_url(dataset_descriptor):
         delimiters
     
     Parameters:
-        url -- str, URL for accessing the dataset online
         dataset_descriptor -- DatasetDescriptor, object containing properties
             relating to a dataset
     
     Raises:
         TypeError -- raises if the attribute 'url' of class 'DatasetDescriptor is not a string
-        TypeError -- raises if the attribute 'delimiter' of class 'DatasetDescriptor is not a string
     
     Returns:
     '''
     if type(dataset_descriptor.url) is not str:
         raise TypeError("TypeError: The attribute 'url' of class 'DatasetDescriptor must be a string")
-
-    if type(dataset_descriptor.delimiter) is not str:
-        raise TypeError("TypeError: The attribute 'delimiter' of class 'DatasetDescriptor must be a string")
 
     response_text = dataset_downloader.read_url(dataset_descriptor.url)
     response_text_row = response_text.split('\n')
@@ -61,20 +56,20 @@ def create_storefront_list_from_url(dataset_descriptor):
     return storefront_list
 
 
-def create_storefront_from_individual_entry(data_entry, header_list, dataset_descriptor):
+def create_storefront_from_individual_entry(entry_of_data, header_list, dataset_descriptor):
     '''
     Function Name: create_storefront_from_individual_entry
         Instantiates 'Storefront' objects by reading the data from a row of text
         separated by delimiters
     
     Parameters:
-        data_entry -- str, row of text, which contains data separated by delimiters
+        entry_of_data -- str, row of text, which contains data separated by delimiters
         header_list -- str, list of headers, read from the first row of text
         dataset_descriptor -- DatasetDescriptor, object containing properties
             relating to a dataset
     
     Raises:
-        TypeError -- raises if the parameter 'data_entry' is not a string
+        TypeError -- raises if the parameter 'entry_of_data' is not a string
         TypeError -- raises if the parameter 'header_list' is not a list
         ValueError -- raises if the parameter 'header_list' is an empty list
         TypeError -- raises if the parameter 'header_list' does not contain elements of type string
@@ -84,8 +79,8 @@ def create_storefront_from_individual_entry(data_entry, header_list, dataset_des
     Returns:
         Storefront, object representing a storefront
     '''    
-    if type(data_entry) is not str:
-        raise TypeError("TypeError: The parameter 'data_entry' must be a string")
+    if type(entry_of_data) is not str:
+        raise TypeError("TypeError: The parameter 'entry_of_data' must be a string")
 
     if type(header_list) is not list:
         raise TypeError("TypeError: The parameter 'header_list' must be a list")
@@ -102,7 +97,7 @@ def create_storefront_from_individual_entry(data_entry, header_list, dataset_des
     if type(dataset_descriptor.expected_headers) is not dict:
         raise TypeError("TypeError: The attribute 'expected_headers' of class 'DatasetDescriptor' must be a dictionary")
 
-    data_entry_list = data_entry.strip().split(dataset_descriptor.delimiter)
+    entry_of_data_list = entry_of_data.strip().split(dataset_descriptor.delimiter)
 
     store_id = None
     business_name = None
@@ -114,30 +109,30 @@ def create_storefront_from_individual_entry(data_entry, header_list, dataset_des
     local_area = None
 
     # Map each data into the correct object attributes matching the correct column index
-    for i in range(len(data_entry_list)):
+    for i in range(len(entry_of_data_list)):
         if i == header_list.index(dataset_descriptor.expected_headers['store id']):
-            store_id = int(data_entry_list[i])
+            store_id = int(entry_of_data_list[i])
 
         elif i == header_list.index(dataset_descriptor.expected_headers['business name']):
-            business_name = data_entry_list[i]
+            business_name = entry_of_data_list[i]
 
         elif i == header_list.index(dataset_descriptor.expected_headers['address unit']):
-            address_unit = data_entry_list[i]
+            address_unit = entry_of_data_list[i]
 
         elif i == header_list.index(dataset_descriptor.expected_headers['address number']):
-            address_number = int(data_entry_list[i])
+            address_number = int(entry_of_data_list[i])
 
         elif i == header_list.index(dataset_descriptor.expected_headers['address street']):
-            address_street = data_entry_list[i]
+            address_street = entry_of_data_list[i]
 
         elif i == header_list.index(dataset_descriptor.expected_headers['retail category']):
-            retail_category = data_entry_list[i]
+            retail_category = entry_of_data_list[i]
 
         elif i == header_list.index(dataset_descriptor.expected_headers['coordinates']):
-            coordinates = extract_coordinates(data_entry_list[i])
+            coordinates = extract_coordinates(entry_of_data_list[i])
 
         elif i == header_list.index(dataset_descriptor.expected_headers['local area']):
-            local_area = data_entry_list[i]
+            local_area = entry_of_data_list[i]
 
     return Storefront(
         store_id, business_name, address_unit, address_number, address_street,
@@ -145,62 +140,30 @@ def create_storefront_from_individual_entry(data_entry, header_list, dataset_des
         )
 
 
-def create_header_list(start_data_entry, dataset_descriptor):
+def create_header_list(start_entry_of_data, dataset_descriptor):
     '''
     Function Name: create_header_list
         Creates a list of header from a text of row separated by delimiters
     
     Parameters:
-        start_data_entry -- str, the first row of text, which contains the headers
+        start_entry_of_data -- str, the first row of text, which contains the headers
         dataset_descriptor -- DatasetDescriptor, object containing dataset properies
     
     Raises:
-        TypeError -- raises if the parameter 'start_data_entry' is not a string
+        TypeError -- raises if the parameter 'start_entry_of_data' is not a string
         TypeError -- raises if the attribute 'delimiter' of class 'DatasetDescriptor' is not a string
     
     Returns:
         list of str, list of headers
     '''
-    if type(start_data_entry) is not str:
-        raise TypeError("TypeError: The parameter 'start_data_entry' must be a string")
+    if type(start_entry_of_data) is not str:
+        raise TypeError("TypeError: The parameter 'start_entry_of_data' must be a string")
     
     if type(dataset_descriptor.delimiter) is not str:
         raise TypeError("TypeError: The attribute 'delimiter' from 'dataset_descriptor' object must be a string")
     
-    header_list = start_data_entry.strip().split(dataset_descriptor.delimiter)
+    header_list = start_entry_of_data.strip().split(dataset_descriptor.delimiter)
     return header_list
-
-
-def concatenate_address(unit, number, street):
-    '''
-    Function Name: concatenate_address
-        Concatenate the unit, civic number, and street address into a full address
-    
-    Parameters:
-        unit -- str, unit number of storefront, or 'N/A' of there exists no unit number
-        number -- int, civic number of storefront
-        street -- str, street name of storefront
-    
-    Raises:
-        TypeError -- raises if the parameter 'unit' is not a string
-        TypeError -- raises if the parameter 'number' is not an integer
-        TypeError -- raises if the parameter 'street' is not a string
-    
-    Returns:
-        _type_, _description_
-    '''
-    if type(unit) is not str:
-        raise TypeError("TypeError: The parameter 'unit' must be a string")
-    if type(number) is not int:
-        raise TypeError("TypeError: The attribute 'number' must be an integer")
-    if type(street) is not str:
-        raise TypeError("TypeError: The parameter 'street' must be a string")
-
-    full_address = number + '' + street
-    if unit != 'N/A':
-        full_address = unit + '-' + full_address
-  
-    return full_address
 
         
 def extract_coordinates(coordinates_json):
@@ -222,6 +185,7 @@ def extract_coordinates(coordinates_json):
 
     # Remove extra double-quotations (added when reading the data with requests) from raw data
     # and deserialize the json-format string to a dictionary
-    coordinates_dictionary = json.loads(coordinates_json.replace('""', '"').strip('"'))
+    coordinates_json_cleaned = coordinates_json.replace('""', '"').strip('"')
+    coordinates_dictionary = json.loads(coordinates_json_cleaned)
 
     return tuple(coordinates_dictionary['coordinates'])

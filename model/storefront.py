@@ -167,13 +167,18 @@ class Storefront:
             other -- Storefront, object representing a storefront
         
         Raises:
+            TypeError -- raises if the parameter 'other' is not a 'Storefront' object
             TypeError -- raises if the attribute 'store_id' is not an integer
         
         Returns:
             bool, True if the 'store_id' attributes are the same; False otherwise
         '''
+        if type(other) is not Storefront:
+            raise TypeError("TypeError: The parameter 'other' must be a 'Storefront' object")
+
         if (type(self.store_id) is not int) or (type(other.store_id) is not int):
             raise TypeError("TypeError: The attribute 'store_id' of class 'Storefront' must be an integer")
+            
         return self.store_id == other.store_id
                     
 

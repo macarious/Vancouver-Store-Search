@@ -69,7 +69,7 @@ class NearbyStore:
         
         Raises:
             TypeError -- raises if the attribute 'business_name' of class 'Storefront' is not a string
-            TypeError -- raises if the attribute 'origin_station' of class 'TransitStation' is not a string
+            TypeError -- raises if the attribute 'station_name' of class 'TransitStation' is not a string
             TypeError -- raises if the attribute 'distance' of class 'NearbyStore' is not a float
             TypeError -- raises if the attribute 'retail_category' of class 'Storefront' is not a string
 
@@ -79,8 +79,8 @@ class NearbyStore:
         if type(self.storefront.business_name) is not str:
             raise TypeError("TypeError: The attribute 'business_name' of class 'Storefront' must be a string")
         
-        if type(self.origin_station) is not str:
-            raise TypeError("TypeError: The attribute 'origin_station' of class 'NearbysStore' must be a string")
+        if type(self.origin_station.station_name) is not str:
+            raise TypeError("TypeError: The attribute 'station_name' of class 'TransitStation' must be a string")
 
         if type(self.distance) is not float:
             raise TypeError("TypeError: The attribute 'distance' of class 'NearbysStore' must be a float")
@@ -90,9 +90,9 @@ class NearbyStore:
 
         return (
             f"Nearby Store: {self.storefront.business_name}\n"
-            f"origin_station: {self.origin_station.station_name}\n"
+            f"Origin Station: {self.origin_station.station_name}\n"
             f"Distance: {self.distance:.4f} {DISTANCE_UNIT}\n"
-            f"Retail Type: {self.storefront.retail_category}\n"
+            f"Retail Type: {self.retail_category}\n"
         )
 
     
@@ -105,11 +105,22 @@ class NearbyStore:
             other -- NearbyStore, object representing a nearby store
         
         Raises:
-            Nothing
+            TypeError -- raises if the parameter 'other' is not a 'NearbyStore' object
+            TypeError -- raises if the attribute 'business_name' of class 'Storefront' is not a string
+            TypeError -- raises if the attribute 'station_name' of class 'TransitStation' is not a string
         
         Returns:
             bool, True if the 'storefront' and 'origin_station' attributes are the same; False otherwise
         '''
+        if type(other) is not NearbyStore:
+            raise TypeError("TypeError: The parameter 'other' must be a 'NearbyStore' object")
+
+        if (type(self.storefront.business_name) is not str) or (type(other.storefront.business_name)is not str):
+            raise TypeError("TypeError: The attribute 'business_name' of class 'Storefront' must be a string")
+        
+        if (type(self.origin_station.station_name) is not str) or (type(other.origin_station.station_name) is not str):
+            raise TypeError("TypeError: The attribute 'station_name' of class 'TransitStation' must be a string")
+
         return (
                 (self.storefront == other.storefront) and
                 (self.origin_station == other.origin_station)

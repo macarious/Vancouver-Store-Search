@@ -11,7 +11,7 @@ transit_station.py
 '''
 
 import unittest
-from transit_station import TransitStation
+from model.transit_station import TransitStation
 
 
 class TestTransitStation(unittest.TestCase):
@@ -118,6 +118,10 @@ class TestTransitStation(unittest.TestCase):
 
 
     def test_eq_TypeError(self):
+        with self.assertRaises(TypeError):
+            other_object = 2000
+            self.basic_object == other_object
+            
         other_name = 'MARINE DRIVE'
         other_coordinates = (491473.12822691567, 5450757.244252066)
         other_local_area = 'Marpole'

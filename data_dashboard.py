@@ -8,12 +8,19 @@ Data Dashboard - datadashboard.py
 
 Program Description:
 --------------------
+For User:
+This program searches for the location of nearby stores given a Transit Station.
+The user can select a store category, a search radius, and a maximum number of
+stores to display. The number of stores displayed on the map and table will
+either be governed by the search radius or the maximum number of stores selected.
+
+What the program does:
 This program parses data (Transit Stations and Storefronts in Vancouver) and
 represent them in a 'TransitStation' and a 'Storefront' objects respectively.
 The program prompts user for a transit station, a store category, and a 
 search radius. Then the program will output information of the nearby stores
 around the transit station in a table; the output is also displayed in a
-visualization of a map of vancouver with the location of the transit station
+visualization of a map of Vancouver with the location of the transit station
 and the nearby stores marked on it. The user can also specify the maximum number
 of stores to display. The program will only display up to 1000 stores, and the
 maximum search radius from a transit station is 5.0 km.
@@ -70,7 +77,10 @@ def main():
         user_interface = GraphicalUserInterface()
         user_interface.start_user_interaction()
 
-    except Exception as exception: # Reraises exceptions here
+    # All errors raised are first handled in the message window in the GUI
+    # Application window will close after 5 seconds, and the exception
+    # is re-raised here and printed in the terminal
+    except Exception as exception:
         print(exception)
         
 if __name__ == "__main__":

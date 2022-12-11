@@ -36,12 +36,20 @@ from resources.dataset_url import STOREFRONTS_DATASET
 from user_interface.gui_parameters import *
 
 
+CLOSE_WINDOW_TIMER = 10000 # milliseconds
+CLOSE_WINDOW_COUNTDOWN_INTERVAL = 1000 # milliseconds
+MILLISECOND_TO_SECOND_CONVERSION = 1 / 1000
+ADDITIONAL_STORE_CATEGORY = 'All'
+UNUSED_STORE_CATEGORY = ['Vacant', 'Vacant UC', 'Unknown']
+# GUI-related parameters are saved in user_interface.gui_parameters
+
+
 class GraphicalUserInterface:
     '''
     Class Name: GraphicalUserInterface
         This class represents the graphical user interface which interacts with
         a user to prompt for input and display output to the user graphically.
-_configure_style
+        
         The following methods are available:
         __init__ (Constructor)
         __str__
@@ -164,15 +172,20 @@ _configure_style
             # Download, clean, and convert dataset into objects
             self.create_list_of_objects_from_url()
 
-            self.__populate_menus()
+            self._populate_menus()
             self._set_user_interface_state_ready()
 
             # Interact with the model and the view
             self.master.mainloop()
 
-        except Exception as exception: # Print error message in GUI instead of terminal
-            self.label_message_display.config(LABEL_LOADING_MESSAGE_ERROR, text = exception)
-            self.master.mainloop()
+        except Exception as exception: # Print error message in GUI before closing application window
+            close_window_timer = CLOSE_WINDOW_TIMER
+            while close_window_timer >= 0:
+                message_text = f"{exception}\nWindow will close in {int(close_window_timer * MILLISECOND_TO_SECOND_CONVERSION)} seconds."
+                self.label_message_display.config(LABEL_LOADING_MESSAGE_ERROR, text = message_text)
+                self._wait(CLOSE_WINDOW_COUNTDOWN_INTERVAL) # milliseconds
+                close_window_timer -= CLOSE_WINDOW_COUNTDOWN_INTERVAL # milliseconds
+            raise Exception(exception) # Reraise exception to data_dashboard, to be displayed in terminal
 
 
     def build_application_window(self):
@@ -640,7 +653,7 @@ _configure_style
 
     def _populate_labelframe_station_control(self):
         '''
-        Method Name: __populate_flabelframe_station_control
+        Method Name: _populate_labelframe_station_control
             Populate the 'station control' label frame with a combobox (drop-down menu)
         
         Parameters:
@@ -657,9 +670,9 @@ _configure_style
         self.combobox_station_control.pack(**DEFAULT_PACK_CONFIG)
 
 
-    def __populate_menus(self):
+    def _populate_menus(self):
         '''
-        Method Name: __populate_menus
+        Method Name: _populate_menus
             Assign information from a list of 'TransitStation' objects and a list of 'Storefront'
             objects to attributes of the 'GraphicalUserInterface' class
         
@@ -775,3 +788,22 @@ _configure_style
         self.user_input.store_category = self.store_category_variable.get()
         self.user_input.search_radius = self.search_radius_variable.get()
         self.user_input.max_display_count = self.display_count_variable.get()
+
+
+    def _wait(self, time):
+        '''
+        Method Name: _wait
+            Pauses the event for a specific time in milliseconds
+        
+        Parameters:
+            time -- int, in milliseconds
+        
+        Raises:
+            Nothing
+        
+        Returns:
+            None
+        '''
+        dummy_var = IntVar()
+        self.master.after(time, dummy_var.set, 1)
+        self.master.wait_variable(dummy_var)

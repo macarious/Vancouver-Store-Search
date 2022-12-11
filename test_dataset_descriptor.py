@@ -11,7 +11,7 @@ dataset_descriptor.py
 '''
 
 import unittest
-from dataset_descriptor import DatasetDescriptor
+from model.dataset_descriptor import DatasetDescriptor
 
 
 class TestDatasetDescriptor(unittest.TestCase):

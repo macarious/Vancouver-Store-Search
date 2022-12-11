@@ -114,11 +114,15 @@ class TransitStation:
             other -- TransitStation, object representing a transit station
         
         Raises:
+            TypeError -- raises if the parameter 'other' is not a 'TransitStation' object
             TypeError -- raises if the attribute 'station_name' is not a string
         
         Returns:
             bool, True if the 'station_name' attributes are the same; False otherwise
         '''
+        if type(other) is not TransitStation:
+            raise TypeError("TypeError: The parameter 'other' must be a 'TransitStation' object")
+
         if (type(self.station_name) is not str) or (type(other.station_name) is not str):
             raise TypeError("TypeError: The attribute 'name' of class 'TransitStation' must be a string")
 

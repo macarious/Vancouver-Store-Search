@@ -11,7 +11,7 @@ local_area_boundary.py
 '''
 
 import unittest
-from local_area_boundary import LocalAreaBoundary
+from model.local_area_boundary import LocalAreaBoundary
 
 
 class TestLocalAreaBoundary(unittest.TestCase):
@@ -201,6 +201,10 @@ class TestLocalAreaBoundary(unittest.TestCase):
 
 
     def test_eq_TypeError(self):
+        with self.assertRaises(TypeError):
+            other_object = 2000
+            self.basic_object == other_object
+
         other_abbreviation = 'GW'
         other_name = 'Grandview-Woodland'
         other_list_boundary_coordinates = [(494399.4616453806, 5459725.039424128), (495071.2898342053, 5459708.280744998), (495446.2721377341, 5459644.768848708), (495460.81964618707, 5459793.6101129325), (495892.65275480703, 5460083.7676818995), (495882.8355803871, 5456602.905781702), (494363.54977730464, 5456622.063910625), (494367.75457073154, 5456933.75961796), (494399.4616453806, 5459725.039424128)]

@@ -11,7 +11,7 @@ storefront.py
 '''
 
 import unittest
-from storefront import Storefront
+from model.storefront import Storefront
 
 
 class TestStorefront(unittest.TestCase):
@@ -64,8 +64,15 @@ class TestStorefront(unittest.TestCase):
             self.basic_coordinates,
             self.basic_local_area
             )
+        self.assertEqual(self.basic_object.store_id, 2346)
+        self.assertEqual(self.basic_object.business_name, 'Miku Restaurant Vancouver Ltd')
+        self.assertEqual(self.basic_object.address_unit, 'N/A')
+        self.assertEqual(self.basic_object.address_number, 200)
+        self.assertEqual(self.basic_object.address_street, 'GRANVILLE ST')
+        self.assertEqual(self.basic_object.retail_category, 'Food & Beverage')
+        self.assertEqual(self.basic_object.coordinates, (491828.5353999988, 5459317.5562))
+        self.assertEqual(self.basic_object.local_area, 'Downtown')
         self.assertEqual(self.basic_object.full_address, '200 GRANVILLE ST')
-
 
 
     def test_init_TypeError(self):
@@ -329,6 +336,10 @@ class TestStorefront(unittest.TestCase):
 
 
     def test_eq_TypeError(self):
+        with self.assertRaises(TypeError):
+            other_object = 2000
+            self.basic_object == other_object
+
         other_store_id = 5422
         other_business_name = 'CoCo Fresh Tea & Juice'
         other_address_unit = 'N/A'

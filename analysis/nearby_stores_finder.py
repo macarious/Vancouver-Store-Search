@@ -6,6 +6,9 @@ Data Dashboard Final Project
 
 Module Name -- nearby_stores_finder
 
+Note that part of the analysis is done using the 'calculate_distance_to'
+method from the 'TransitStation' class.
+
 This file contains functions that uses 'Storefront' and 'TransitStation'
 objects and create a sorted list of all nearby stores around a specified
 transit station. The list contains 'NearbyStore' objects. Store category
@@ -32,7 +35,7 @@ def find_nearby_stores(input, list_storefront):
         'NearbyStore' objects from a list of 'Storefront' objects
     
     Parameters:
-        input -- dict, input from users (keys are input name; values are user input)
+        input -- UserInput, input from users
         list_storefront -- list of Storefront, list of 'Storefront' objects
     
     Raises:
@@ -105,9 +108,12 @@ def filter_stores_by_category(list_storefront, store_category):
         raise TypeError("TypeError: The parameter 'store_category' must be a string")
     
     if store_category == 'All':
-        return filter(lambda storefront: storefront.retail_category not in VACANT_LABELS, list_storefront)
+        filtered_list = filter(lambda storefront: storefront.retail_category not in VACANT_LABELS, list_storefront)
+        return list(filtered_list)
+
+    filtered_list = filter(lambda storefront: storefront.retail_category == store_category, list_storefront)
     
-    return filter(lambda storefront: storefront.retail_category == store_category, list_storefront)
+    return list(filtered_list)
 
 
 def filter_stores_by_search_radius(list_nearby_stores, search_radius):
@@ -136,7 +142,7 @@ def filter_stores_by_search_radius(list_nearby_stores, search_radius):
     if type(search_radius) is not float:
         raise TypeError("TypeError: The parameter 'search_radius' must be a float")
 
-    if search_radius == 0: # Returns unfiltered list
+    if search_radius == 0.0: # Returns unfiltered list
         return list_nearby_stores
 
     index = 0
@@ -185,6 +191,7 @@ def remove_duplicated_stores(list_nearby_stores):
 
     Raises:
         TypeError -- raises if the parameter 'list_nearby_stores' is not a list
+        ValueError -- raises if the parameter 'list_nearby_stores' is an empty list
     
     Returns:
         list of NearbyStore, list of filtered 'NearbyStore' objects
