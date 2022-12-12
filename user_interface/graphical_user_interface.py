@@ -26,6 +26,7 @@ from user_interface.user_input import UserInput
 from user_interface.visualization_view import VisualizationView
 
 # Downloaded Libraries
+import requests # Only for error handling (downloading of data is in dataset_downloader.py)
 from tkinter import *
 from tkinter import ttk
 
@@ -49,15 +50,28 @@ class GraphicalUserInterface:
     Class Name: GraphicalUserInterface
         This class represents the graphical user interface which interacts with
         a user to prompt for input and display output to the user graphically.
+        Since this program is event-driven, this class also acts as the driver.
+
+        #################################################
+        # This method acts like the driver / controller #
+        #################################################
+        start_user_interface
+
+        #############################################
+        # This method calls model-related functions #
+        #############################################
+        create_list_of_objects_from_url
+
+        ################################################
+        # This method calls analysis-related functions #
+        ################################################
+        start_search_button_event
         
         The following methods are available:
         __init__ (Constructor)
         __str__
         __eq__
-        start_user_interface -- this method acts as the controller
         build_application_window
-        create_list_of_objects_from_url
-        start_search_button_event
         update_label_search_radius_event
         update_label_display_count_event
 
@@ -65,6 +79,7 @@ class GraphicalUserInterface:
         _configure_style
         _create_primary_frames
         _display_list_nearby_stores
+        _handle_exception_in_gui
         _generate_list_station_names
         _generate_list_store_categories
         _populate_frame_title
@@ -167,25 +182,45 @@ class GraphicalUserInterface:
         Returns:
             None
         '''
-        self.build_application_window()
         try:
-            # Download, clean, and convert dataset into objects
-            self.create_list_of_objects_from_url()
-
+            self.build_application_window()
+            self.create_list_of_objects_from_url() # Download, clean, and convert dataset into objects
             self._populate_menus()
-            self._set_user_interface_state_ready()
-
-            # Interact with the model and the view
-            self.master.mainloop()
-
-        except Exception as exception: # Print error message in GUI for 10 seconds before closing application window
-            close_window_timer = CLOSE_WINDOW_TIMER
-            while close_window_timer >= 0:
-                message_text = f"{exception}\nWindow will close in {int(close_window_timer * MILLISECOND_TO_SECOND_CONVERSION)} seconds."
-                self.label_message_display.config(LABEL_LOADING_MESSAGE_ERROR, text = message_text)
-                self._wait(CLOSE_WINDOW_COUNTDOWN_INTERVAL) # milliseconds
-                close_window_timer -= CLOSE_WINDOW_COUNTDOWN_INTERVAL # milliseconds
-            raise Exception(exception) # Reraise exception to data_dashboard, to be displayed in terminal
+            self._set_user_interface_state_ready() # Enable all widgets
+            self.master.mainloop() # Interact with the model and the view
+            
+        # Print error message in GUI for 10 seconds before closing application window
+        # Afterwards, reraise exception in data_dashboard, to be displayed in terminal
+        except requests.HTTPError as exception: 
+            self._handle_exception_in_gui(exception)
+            raise exception
+        except requests.ConnectionError as exception: 
+            self._handle_exception_in_gui(exception)
+            raise exception
+        except requests.TooManyRedirects as exception: 
+            self._handle_exception_in_gui(exception)
+            raise exception
+        except requests.Timeout as exception: 
+            self._handle_exception_in_gui(exception)
+            raise exception
+        
+        # TypeError, ValueError, and AttributeError are 'abstracted' from the users      
+        # Print a generic error message in GUI for 10 seconds before closing application window
+        # Afterwards, reraise the actual exception in data_dashboard, to be displayed in terminal
+        except TypeError as exception:
+            self._handle_exception_abstract()
+            raise exception
+        except ValueError as exception:
+            self._handle_exception_abstract()
+            raise exception
+        except AttributeError as exception:
+            self._handle_exception_abstract()
+            raise exception
+        
+        # All other 'unexpected' errors are reraised in data_dashboard, to be displayed
+        # in terminal only
+        except Exception as exception:
+            raise exception
 
 
     def build_application_window(self):
@@ -460,6 +495,24 @@ class GraphicalUserInterface:
 
         list_store_categories.append(ADDITIONAL_STORE_CATEGORY)
         self.list_store_categories = sorted(list_store_categories)
+
+
+    def _handle_exception_abstract(self):
+        close_window_timer = CLOSE_WINDOW_TIMER # milliseconds
+        while close_window_timer >= 0:
+            message_text = f"An expected error has occured.\nWindow will close in {int(close_window_timer * MILLISECOND_TO_SECOND_CONVERSION)} seconds."
+            self.label_message_display.config(LABEL_LOADING_MESSAGE_ERROR, text = message_text)
+            self._wait(CLOSE_WINDOW_COUNTDOWN_INTERVAL) # milliseconds
+            close_window_timer -= CLOSE_WINDOW_COUNTDOWN_INTERVAL # milliseconds
+
+
+    def _handle_exception_in_gui(self, exception):
+        close_window_timer = CLOSE_WINDOW_TIMER # millseconds
+        while close_window_timer >= 0:
+            message_text = f"{exception}\nWindow will close in {int(close_window_timer * MILLISECOND_TO_SECOND_CONVERSION)} seconds."
+            self.label_message_display.config(LABEL_LOADING_MESSAGE_ERROR, text = message_text)
+            self._wait(CLOSE_WINDOW_COUNTDOWN_INTERVAL) # milliseconds
+            close_window_timer -= CLOSE_WINDOW_COUNTDOWN_INTERVAL # milliseconds
 
 
     def _populate_frame_title(self):

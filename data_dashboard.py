@@ -78,9 +78,10 @@ def main():
         user_interface = GraphicalUserInterface()
         user_interface.start_user_interaction()
 
-    # All errors raised are first handled in the message window in the GUI
-    # Application window will close after 5 seconds, and the exception
-    # is re-raised here and printed in the terminal
+    # All errors raised are handled in the message window in the GUI
+    # Application window will close after 10 seconds, and the exception
+    # is re-raised here and printed in the terminal.
+    # See GraphicaluserInterface.start_user_interaction for error handling
     except Exception as exception:
         print(exception)
         
