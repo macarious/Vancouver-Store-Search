@@ -98,16 +98,16 @@ class VisualizationView:
             Nothing
         
         Raises:
-            TypeError --
+            Nothing
             
         Returns:
             str, the string used when 'str' or 'print' functions is called
         '''
         return (
-            f"{self.name}:\n"
-            f"Input -- Station: {self.user_input.name}\n"
-            f"Input -- Store Category : {self.user_input.store_category}\n"
-            f"Input -- Search Radius : {self.user_input.search_radius}\n"
+            f"{self.name}\n"
+            f"Input -- Station: {self.user_input.transit_station.station_name}\n"
+            f"Input -- Store Category: {self.user_input.store_category}\n"
+            f"Input -- Search Radius: {self.user_input.search_radius}\n"
         )
 
     

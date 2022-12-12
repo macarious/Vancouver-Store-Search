@@ -36,15 +36,15 @@ Files ussed for model:
 dataset_downloader -- downloads online dataset and parse them into text
 dataset_parameters -- creates DataDescriptor objects
 local_area_boundary_factory -- clean data and creats 'LocalAreaBoundary' objects
-storefront_factory - cleans data and creates 'Storefront' objects
-transit_station_factory - cleans data and creates 'TransitStation' objects
+storefront_factory -- cleans data and creates 'Storefront' objects
+transit_station_factory -- cleans data and creates 'TransitStation' objects
 
 Classes used for model:
 ------------------
-DataDescriptor - represents the parameters of a dataset
+DataDescriptor -- represents the parameters of a dataset
 LocalAreaBoundary -- represents the geographical boundary of a local area
-Storefront - represents a storefront
-TransitStation - represents a transit station
+Storefront -- represents a storefront
+TransitStation -- represents a transit station
 
 File used for analysis:
 ------------------
@@ -52,7 +52,8 @@ nearby_stores_finder -- finds and creates 'NearbyStore' objects
 
 Classes used for analysis:
 ---------------------
-NearbyStore - represents a store near a transit station
+TransitStation -- calculates distances between TransitStation and coordinates
+NearbyStore -- represents a store near a selected transit station
 
 Python libraries (with approval of use):
 ----------------------------------------

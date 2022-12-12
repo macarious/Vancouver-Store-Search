@@ -178,7 +178,7 @@ class GraphicalUserInterface:
             # Interact with the model and the view
             self.master.mainloop()
 
-        except Exception as exception: # Print error message in GUI before closing application window
+        except Exception as exception: # Print error message in GUI for 10 seconds before closing application window
             close_window_timer = CLOSE_WINDOW_TIMER
             while close_window_timer >= 0:
                 message_text = f"{exception}\nWindow will close in {int(close_window_timer * MILLISECOND_TO_SECOND_CONVERSION)} seconds."
