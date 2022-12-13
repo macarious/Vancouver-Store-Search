@@ -31,7 +31,7 @@ GraphicalUserInterface - controls how the terminal interacts with the user
 UserInput -- represents a set of input a user has chosen
 VisualizationView -- controls what is displayed in the visualization
 
-Files ussed for model:
+Files ussed for model (download, parse, clean, object creation):
 ------------------------
 dataset_downloader -- downloads online dataset and parse them into text
 dataset_parameters -- creates DataDescriptor objects
@@ -52,7 +52,7 @@ nearby_stores_finder -- finds and creates 'NearbyStore' objects
 
 Classes used for analysis:
 ---------------------
-TransitStation -- calculates distances between TransitStation and coordinates
+TransitStation -- calculates distances between TransitStation and any coordinates
 NearbyStore -- represents a store near a selected transit station
 
 Python libraries (with approval of use):

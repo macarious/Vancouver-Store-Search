@@ -3,7 +3,8 @@ HUI, Macarious Kin Fung
 
 Data Dashboard Final Project
 Milestone 2 - design.txt
-Driver file name -- data_dashboard.py
+
+To start, run the follwing driver file -- data_dashboard.py
 
 Summary:
 Given a rapid transit station, my program searches for nearby stores and show the user where the store is. (This is, by no means, a sophisticated Google Map.)
